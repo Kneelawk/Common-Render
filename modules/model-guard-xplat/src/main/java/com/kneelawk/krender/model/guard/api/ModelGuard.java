@@ -14,7 +14,11 @@ import net.minecraft.server.packs.resources.ResourceManager;
  * A type of model guard.
  */
 public interface ModelGuard {
-    Codec<ModelGuard> CODEC = ModelGuards.LOOKUP.dispatch(ModelGuard::getCodec, Function.identity());
+    /**
+     * The codec for model guards.
+     */
+    Codec<ModelGuard> CODEC =
+        ModelGuards.CODEC_REGISTRY.byNameCodec().dispatch(ModelGuard::getCodec, Function.identity());
 
     /**
      * {@return this model guard's codec}
@@ -30,7 +34,8 @@ public interface ModelGuard {
      * Actually loads resources for a model loader.
      *
      * @param manager the resource manager to load from.
+     * @param suffix  the suffix of model files to load.
      * @return all loaded resources.
      */
-    Map<ResourceLocation, Resource> load(ResourceManager manager);
+    Map<ResourceLocation, Resource> load(ResourceManager manager, String suffix);
 }

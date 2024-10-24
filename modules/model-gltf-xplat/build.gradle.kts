@@ -13,5 +13,5 @@ submodule {
 }
 
 kpublish {
-    createPublication("intermediate")
+    createPublication("intermediary")
 }
