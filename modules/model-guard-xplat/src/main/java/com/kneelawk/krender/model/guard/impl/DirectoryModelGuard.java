@@ -1,6 +1,9 @@
 package com.kneelawk.krender.model.guard.impl;
 
 import java.util.Map;
+import java.util.stream.Stream;
+
+import org.jetbrains.annotations.Nullable;
 
 import it.unimi.dsi.fastutil.Pair;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
@@ -25,12 +28,20 @@ public final class DirectoryModelGuard implements ModelGuard {
         ).apply(instance, DirectoryModelGuard::new));
 
     private final ResourceLocation loader;
+    private final @Nullable String namespace;
     private final String directory;
     private final String prefix;
 
     public DirectoryModelGuard(ResourceLocation loader, String directory, String prefix) {
         this.loader = loader;
-        this.directory = directory;
+        if (directory.contains(":")) {
+            ResourceLocation location = ResourceLocation.parse(directory);
+            this.namespace = location.getNamespace();
+            this.directory = location.getPath();
+        } else {
+            this.namespace = null;
+            this.directory = directory;
+        }
         this.prefix = prefix;
     }
 
@@ -47,7 +58,12 @@ public final class DirectoryModelGuard implements ModelGuard {
     @Override
     public Map<ResourceLocation, Resource> load(ResourceManager manager, String suffix) {
         FileToIdConverter converter = new FileToIdConverter(directory, suffix);
-        return converter.listMatchingResources(manager).entrySet().stream()
+        Stream<Map.Entry<ResourceLocation, Resource>> stream =
+            converter.listMatchingResources(manager).entrySet().stream();
+        if (namespace != null) {
+            stream = stream.filter(e -> e.getKey().getNamespace().equals(namespace));
+        }
+        return stream
             .map(e -> Pair.of(converter.fileToId(e.getKey()).withPrefix(prefix), e.getValue()))
             .collect(Object2ObjectOpenHashMap::new, (map, pair) -> map.put(pair.key(), pair.value()),
                 Object2ObjectOpenHashMap::putAll);
