@@ -1,6 +1,7 @@
 package com.kneelawk.krender.model.guard.impl;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.jetbrains.annotations.Nullable;
@@ -56,7 +57,7 @@ public final class DirectoryModelGuard implements ModelGuard {
     }
 
     @Override
-    public Map<ResourceLocation, Resource> load(ResourceManager manager, String suffix) {
+    public Map<ResourceLocation, Resource> loadAll(ResourceManager manager, String suffix) {
         FileToIdConverter converter = new FileToIdConverter(directory, suffix);
         Stream<Map.Entry<ResourceLocation, Resource>> stream =
             converter.listMatchingResources(manager).entrySet().stream();
@@ -69,9 +70,25 @@ public final class DirectoryModelGuard implements ModelGuard {
                 Object2ObjectOpenHashMap::putAll);
     }
 
+    @Override
+    public Optional<Resource> load(ResourceManager manager, ResourceLocation id) {
+        if (!id.getPath().startsWith(prefix)) return Optional.empty();
+        String path = id.getPath().substring(prefix.length());
+
+        if (namespace != null && !namespace.equals(id.getNamespace())) return Optional.empty();
+
+        return manager.getResource(id.withPath(directory + "/" + path));
+    }
+
     private ResourceLocation loader() {return loader;}
 
-    private String directory() {return directory;}
+    private String directory() {
+        if (namespace == null) {
+            return directory;
+        } else {
+            return namespace + ":" + directory;
+        }
+    }
 
     private String prefix() {return prefix;}
 }

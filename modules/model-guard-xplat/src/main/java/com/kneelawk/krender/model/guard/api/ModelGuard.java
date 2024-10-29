@@ -1,6 +1,7 @@
 package com.kneelawk.krender.model.guard.api;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 
 import com.mojang.serialization.Codec;
@@ -37,5 +38,14 @@ public interface ModelGuard {
      * @param suffix  the suffix of model files to load.
      * @return all loaded resources.
      */
-    Map<ResourceLocation, Resource> load(ResourceManager manager, String suffix);
+    Map<ResourceLocation, Resource> loadAll(ResourceManager manager, String suffix);
+
+    /**
+     * Loads a single resource for a model loader.
+     *
+     * @param manager the resource manager to load from.
+     * @param id      the id of the resource to load.
+     * @return the single loaded resource, if present.
+     */
+    Optional<Resource> load(ResourceManager manager, ResourceLocation id);
 }

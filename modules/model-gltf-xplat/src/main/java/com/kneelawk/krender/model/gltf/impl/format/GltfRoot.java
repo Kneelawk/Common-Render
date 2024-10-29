@@ -7,7 +7,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 public record GltfRoot(OptionalInt scene, List<GltfScene> scenes, List<GltfNode> nodes, List<GltfBuffer> buffers,
-                       List<GltfBufferView> bufferViews, List<GltfMesh> meshes,
+                       List<GltfBufferView> bufferViews, List<GltfAccessor> accessors, List<GltfMesh> meshes,
                        List<GltfTexture> textures, List<GltfImage> images, List<GltfMaterial> materials) {
     public static final Codec<GltfRoot> CODEC = RecordCodecBuilder.create(instance -> instance.group(
         Codecs.optionalInt(Codec.INT.optionalFieldOf("scene")).forGetter(GltfRoot::scene),
@@ -15,6 +15,7 @@ public record GltfRoot(OptionalInt scene, List<GltfScene> scenes, List<GltfNode>
         GltfNode.CODEC.listOf().fieldOf("nodes").forGetter(GltfRoot::nodes),
         GltfBuffer.CODEC.listOf().fieldOf("buffers").forGetter(GltfRoot::buffers),
         GltfBufferView.CODEC.listOf().fieldOf("bufferViews").forGetter(GltfRoot::bufferViews),
+        GltfAccessor.CODEC.listOf().fieldOf("accessors").forGetter(GltfRoot::accessors),
         GltfMesh.CODEC.listOf().fieldOf("meshes").forGetter(GltfRoot::meshes),
         GltfTexture.CODEC.listOf().fieldOf("textures").forGetter(GltfRoot::textures),
         GltfImage.CODEC.listOf().fieldOf("images").forGetter(GltfRoot::images),

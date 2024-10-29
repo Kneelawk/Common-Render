@@ -6,6 +6,8 @@ public class KRMGConstants {
     public static final String MOD_ID = "krender_model_guard";
     public static final String PARENT_MOD_ID = "krender";
 
+    public static final ResourceLocation LOADER_NAME = prl("gltf");
+
     public static ResourceLocation rl(String path) {
         return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
     }

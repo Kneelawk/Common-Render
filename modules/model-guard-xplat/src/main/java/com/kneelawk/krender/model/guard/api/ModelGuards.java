@@ -3,6 +3,7 @@ package com.kneelawk.krender.model.guard.api;
 import java.io.BufferedReader;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
@@ -49,6 +50,7 @@ public class ModelGuards {
      *
      * @param manager    the resource manager to load resources from.
      * @param loaderName the name of the model loader to load resources for.
+     * @param suffix     the suffix for the model files to load.
      * @return the model resources for the given loader.
      */
     public Map<ResourceLocation, Resource> getModels(ResourceManager manager, ResourceLocation loaderName,
@@ -58,10 +60,32 @@ public class ModelGuards {
 
         Map<ResourceLocation, Resource> loaded = new Object2ObjectLinkedOpenHashMap<>();
         for (ModelGuard guard : guardList) {
-            loaded.putAll(guard.load(manager, suffix));
+            loaded.putAll(guard.loadAll(manager, suffix));
         }
 
         return loaded;
+    }
+
+    /**
+     * Loads a model resource from the first guard that has been permitted to be loaded by the given loader and that has
+     * the requested resource.
+     *
+     * @param manager    the resource manager to load resources from.
+     * @param loaderName the name of the model loader to load resources for.
+     * @param resourceId the id (including suffix) of the resource to load.
+     * @return the model resource for the given id and loader if present.
+     */
+    public Optional<Resource> getResource(ResourceManager manager, ResourceLocation loaderName,
+                                          ResourceLocation resourceId) {
+        List<ModelGuard> guardList = guards.get(loaderName);
+        if (guardList == null) return Optional.empty();
+
+        for (ModelGuard guard : guardList) {
+            Optional<Resource> resource = guard.load(manager, resourceId);
+            if (resource.isPresent()) return resource;
+        }
+
+        return Optional.empty();
     }
 
     /**
