@@ -1,4 +1,4 @@
-package com.kneelawk.krender.model.gltf.impl.format;
+package com.kneelawk.krender.model.gltf.impl;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -30,8 +30,13 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 
+import com.kneelawk.krender.model.gltf.impl.format.GltfBuffer;
+import com.kneelawk.krender.model.gltf.impl.format.GltfImage;
+import com.kneelawk.krender.model.gltf.impl.format.GltfRoot;
 import com.kneelawk.krender.model.guard.api.ModelGuards;
 import com.kneelawk.krender.model.guard.impl.KRMGConstants;
+
+import static com.kneelawk.krender.model.gltf.impl.GltfUtils.swapInt;
 
 public record GltfFile(GltfRoot root, byte @Nullable [] buffer, Map<ResourceLocation, byte[]> dependencies) {
     public static GltfFile loadGltf(Resource resource, ResourceManager manager, ModelGuards guards) throws IOException {
@@ -62,10 +67,10 @@ public record GltfFile(GltfRoot root, byte @Nullable [] buffer, Map<ResourceLoca
             // readInt is big-endian while GLB files are little-endian
             int magic = dis.readInt();
             if (magic != 0x676C5446) throw new IOException("Not GLB data");
-            int _version = swap(dis.readInt());
-            int fileLength = swap(dis.readInt());
+            int _version = swapInt(dis.readInt());
+            int fileLength = swapInt(dis.readInt());
 
-            int jsonChunkLength = swap(dis.readInt());
+            int jsonChunkLength = swapInt(dis.readInt());
             int jsonChunkType = dis.readInt();
             if (jsonChunkType != 0x4A534F4E) throw new IOException("First chunk is not json");
 
@@ -81,7 +86,7 @@ public record GltfFile(GltfRoot root, byte @Nullable [] buffer, Map<ResourceLoca
 
             if (fileLength > jsonChunkLength + 12) {
                 // binary blob is included too
-                int binChunkLength = swap(dis.readInt());
+                int binChunkLength = swapInt(dis.readInt());
                 int binChunkType = dis.readInt();
                 if (binChunkType != 0x42494E00) throw new IOException("Second chunk is not binary");
 
@@ -99,11 +104,6 @@ public record GltfFile(GltfRoot root, byte @Nullable [] buffer, Map<ResourceLoca
                 return new GltfFile(root, null, dependencies);
             }
         }
-    }
-
-    private static int swap(int in) {
-        return ((in >> 24) & 0x000000FF) | ((in >> 8) & 0x0000FF00) | ((in << 8) & 0x00FF0000) |
-            ((in << 24) & 0xFF000000);
     }
 
     private static @NotNull Map<ResourceLocation, byte[]> loadDependencies(ResourceManager manager, ModelGuards guards,
@@ -176,7 +176,16 @@ public record GltfFile(GltfRoot root, byte @Nullable [] buffer, Map<ResourceLoca
             }
             String uri = uriOpt.get();
 
-            if (uri.startsWith("data:")) {
+            String rlStr;
+            if (uri.startsWith("rl:")) {
+                rlStr = uri.substring("rl:".length());
+            } else if (uri.startsWith("resourcelocation:")) {
+                rlStr = uri.substring("resourcelocation:".length());
+            } else if (uri.startsWith("id:")) {
+                rlStr = uri.substring("id:".length());
+            } else if (uri.startsWith("identifier:")) {
+                rlStr = uri.substring("identifier:".length());
+            } else if (uri.startsWith("data:")) {
                 int start = "data:".length();
                 int end = uri.indexOf(';');
                 String uriMimeType = uri.substring(start, end);
@@ -187,9 +196,16 @@ public record GltfFile(GltfRoot root, byte @Nullable [] buffer, Map<ResourceLoca
                 if (!"image/png".equals(uriMimeType)) throw new IOException(
                     "Image " + i + " has invalid data mime type: '" + uriMimeType +
                         "'. Allowed data mime types: 'image/png'.");
+                continue;
             } else {
-                throw new IOException(
-                    "Invalid Minecraft glTF image " + i + " uri: '" + uri + "'. Allowed uri types: 'data:'.");
+                throw new IOException("Invalid Minecraft glTF image " + i + " uri: '" + uri +
+                    "'. Allowed uri types: 'rl:', 'resourcelocation:', 'id:', 'identifier:', and 'data:'.");
+            }
+
+            try {
+                ResourceLocation.parse(rlStr);
+            } catch (ResourceLocationException e) {
+                throw new IOException("Invalid uri resource location: '" + rlStr + "' in buffer " + i, e);
             }
         }
     }
