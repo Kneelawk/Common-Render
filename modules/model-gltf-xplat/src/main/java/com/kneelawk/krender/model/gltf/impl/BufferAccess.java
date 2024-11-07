@@ -2,6 +2,8 @@ package com.kneelawk.krender.model.gltf.impl;
 
 import java.io.InputStream;
 
+import com.kneelawk.krender.model.gltf.impl.format.GltfAccessorComponentType;
+
 public interface BufferAccess {
     /**
      * Gets a byte at the given index in the underlying buffer.
@@ -14,6 +16,12 @@ public interface BufferAccess {
     int size();
 
     InputStream createStream();
+
+    default void copyBytes(int byteIndex, byte[] to, int offset, int length) {
+        for (int i = 0; i < length; i++) {
+            to[i + offset] = get(i + byteIndex);
+        }
+    }
 
     default short getShort(int byteIndex) {
         // little endian
@@ -40,5 +48,16 @@ public interface BufferAccess {
 
     default float getFloat(int byteIndex) {
         return Float.intBitsToFloat(getInt(byteIndex));
+    }
+
+    default int getInt(int byteIndex, GltfAccessorComponentType componentType) {
+        return switch (componentType) {
+            case SIGNED_BYTE -> get(byteIndex);
+            case UNSIGNED_BYTE -> get(byteIndex) & 0xFF;
+            case SIGNED_SHORT -> getShort(byteIndex);
+            case UNSIGNED_SHORT -> getShort(byteIndex) & 0xFFFF;
+            case UNSIGNED_INT -> getInt(byteIndex);
+            case FLOAT -> (int) getFloat(byteIndex);
+        };
     }
 }
