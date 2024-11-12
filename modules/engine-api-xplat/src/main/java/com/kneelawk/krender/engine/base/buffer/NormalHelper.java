@@ -147,7 +147,7 @@ public final class NormalHelper {
         // cross diagonals
         float nx = dy0 * dz1 - dz0 * dy1;
         float ny = dz0 * dx1 - dx0 * dz1;
-        float nz = dx0 * dy1 - dy0 * dz1;
+        float nz = dx0 * dy1 - dy0 * dx1;
 
         // normalize normal vec
         float len = (float) Math.sqrt(nx * nx + ny * ny + nz * nz);

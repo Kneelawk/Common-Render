@@ -1,0 +1,16 @@
+{
+  "guards": [
+    {
+      "type": "krender:directory",
+      "loader": "krender:gltf",
+      "directory": "static_models:models/block",
+      "prefix": "block/"
+    },
+    {
+      "type": "krender:directory",
+      "loader": "krender:gltf",
+      "directory": "static_models:models/item",
+      "prefix": "item/"
+    }
+  ]
+}

@@ -7,7 +7,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 public record GltfPbrMetallicRoughness(float[] baseColorFactor, Optional<GltfTextureRef> baseColorTexture) {
     public static final Codec<GltfPbrMetallicRoughness> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-        Codecs.FLOAT_ARRAY.optionalFieldOf("baseColorFactor", new float[0])
+        Codecs.FLOAT_ARRAY.optionalFieldOf("baseColorFactor", new float[]{1f, 1f, 1f, 1f})
             .forGetter(GltfPbrMetallicRoughness::baseColorFactor),
         GltfTextureRef.CODEC.optionalFieldOf("baseColorTexture").forGetter(GltfPbrMetallicRoughness::baseColorTexture)
     ).apply(instance, GltfPbrMetallicRoughness::new));

@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "static_models:block/sphere"
+    }
+  }
+}

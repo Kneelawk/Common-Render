@@ -104,9 +104,11 @@ public class ModelGuards {
             Resource res = entry.getValue();
             try (BufferedReader br = res.openAsReader()) {
                 JsonElement element = JsonParser.parseReader(br);
-                ModelGuard guard = ModelGuard.CODEC.parse(JsonOps.INSTANCE, element).getPartialOrThrow();
+                List<ModelGuard> guardList = ModelGuard.FILE_CODEC.parse(JsonOps.INSTANCE, element).getPartialOrThrow();
 
-                guards.computeIfAbsent(guard.getLoader(), l -> new ObjectArrayList<>()).add(guard);
+                for (ModelGuard guard : guardList) {
+                    guards.computeIfAbsent(guard.getLoader(), l -> new ObjectArrayList<>()).add(guard);
+                }
             } catch (Exception e) {
                 KRMGLog.LOG.error("Error loading model guard '{}'", location, e);
             }

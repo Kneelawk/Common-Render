@@ -157,9 +157,4 @@ public class StrideBufferAccess implements BufferAccess {
     public int size() {
         return size;
     }
-
-    @Override
-    public InputStream createStream() {
-        return new BufferAccessInputStream(this);
-    }
 }

@@ -30,7 +30,10 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 
+import com.kneelawk.krender.model.gltf.impl.format.GltfAccessor;
+import com.kneelawk.krender.model.gltf.impl.format.GltfAccessorSparse;
 import com.kneelawk.krender.model.gltf.impl.format.GltfBuffer;
+import com.kneelawk.krender.model.gltf.impl.format.GltfBufferView;
 import com.kneelawk.krender.model.gltf.impl.format.GltfImage;
 import com.kneelawk.krender.model.gltf.impl.format.GltfRoot;
 import com.kneelawk.krender.model.guard.api.ModelGuards;
@@ -49,6 +52,10 @@ public record GltfFile(GltfRoot root, byte @Nullable [] buffer, Map<ResourceLoca
         DataResult<GltfRoot> result = GltfRoot.CODEC.parse(JsonOps.INSTANCE, json);
         if (!result.hasResultOrPartial())
             throw new IOException("Error parsing gltf json: " + result.error().get().message());
+        if (result.isError()) {
+            KGltfLog.LOG.warn("Encountered salvageable error while parsing gltf json: {}",
+                result.error().get().message());
+        }
 
         GltfRoot root = result.getPartialOrThrow();
         checkImages(root);
@@ -78,9 +85,15 @@ public record GltfFile(GltfRoot root, byte @Nullable [] buffer, Map<ResourceLoca
             dis.readFully(jsonBytes);
             String json = new String(jsonBytes, StandardCharsets.UTF_8);
             JsonElement element = JsonParser.parseString(json);
+
             DataResult<GltfRoot> result = GltfRoot.CODEC.parse(JsonOps.INSTANCE, element);
             if (!result.hasResultOrPartial())
                 throw new IOException("Error parsing glb json: " + result.error().get().message());
+            if (result.isError()) {
+                KGltfLog.LOG.warn("Encountered salvageable error while parsing glb json: {}",
+                    result.error().get().message());
+            }
+
             GltfRoot root = result.getPartialOrThrow();
             checkImages(root);
 
@@ -205,8 +218,169 @@ public record GltfFile(GltfRoot root, byte @Nullable [] buffer, Map<ResourceLoca
             try {
                 ResourceLocation.parse(rlStr);
             } catch (ResourceLocationException e) {
-                throw new IOException("Invalid uri resource location: '" + rlStr + "' in buffer " + i, e);
+                throw new IOException("Invalid uri resource location: '" + rlStr + "' in image " + i, e);
             }
         }
     }
+
+    public BufferAccess getRawBufferView(int index) throws IOException {
+        List<GltfBufferView> bufferViews = root.bufferViews();
+        if (index < 0 || index >= bufferViews.size())
+            throw new IOException("Attempted to access buffer view " + index + " which does not exist");
+        GltfBufferView view = bufferViews.get(index);
+
+        List<GltfBuffer> buffers = root.buffers();
+        if (view.buffer() < 0 || view.buffer() >= buffers.size())
+            throw new IOException("Buffer view " + index + " has invalid buffer index " + view.buffer());
+        GltfBuffer buffer = buffers.get(view.buffer());
+        if (buffer.uri().isPresent()) {
+            String uri = buffer.uri().get();
+
+            String rlStr;
+            if (uri.startsWith("rl:")) {
+                rlStr = uri.substring("rl:".length());
+            } else if (uri.startsWith("resourcelocation:")) {
+                rlStr = uri.substring("resourcelocation:".length());
+            } else if (uri.startsWith("id:")) {
+                rlStr = uri.substring("id:".length());
+            } else if (uri.startsWith("identifier:")) {
+                rlStr = uri.substring("identifier:".length());
+            } else if (uri.startsWith("data:")) {
+                int start = uri.indexOf(';');
+                String base64 = uri.substring(start + 1);
+                try {
+                    return DenseArrayBufferAccess.fromBase64(base64, (int) view.byteOffset(),
+                        (int) buffer.byteLength());
+                } catch (IllegalArgumentException e) {
+                    throw new IOException("Data url in buffer " + view.buffer() + " contained invalid base-64 data", e);
+                }
+            } else {
+                throw new IOException("Invalid Minecraft glTF buffer " + view.buffer() + " uri: '" + uri +
+                    "'. Allowed uri types: 'rl:', 'resourcelocation:', 'id:', 'identifier:', and 'data:'.");
+            }
+
+            ResourceLocation bufferLocation;
+            try {
+                bufferLocation = ResourceLocation.parse(rlStr);
+            } catch (ResourceLocationException e) {
+                throw new IOException("Invalid uri resource location: '" + rlStr + "' in buffer " + index, e);
+            }
+            byte[] data = dependencies.get(bufferLocation);
+            return new DenseArrayBufferAccess(data, (int) view.byteOffset(), (int) view.byteLength());
+        } else {
+            byte[] data = this.buffer;
+            if (data == null) throw new IOException("Attempted to access GLB buffer, but this file is not a GLB file");
+            return new DenseArrayBufferAccess(data, (int) view.byteOffset(), (int) view.byteLength());
+        }
+    }
+
+    public @Nullable ResourceLocation getImageLocation(int index) throws IOException {
+        List<GltfImage> images = root.images();
+        if (index < 0 || index >= images.size())
+            throw new IOException("Attempted to access image " + index + " which does not exist");
+        GltfImage image = images.get(index);
+        if (image.bufferView().isPresent()) {
+            return null;
+        } else if (image.uri().isPresent()) {
+            String uri = image.uri().get();
+
+            String rlStr;
+            if (uri.startsWith("rl:")) {
+                rlStr = uri.substring("rl:".length());
+            } else if (uri.startsWith("resourcelocation:")) {
+                rlStr = uri.substring("resourcelocation:".length());
+            } else if (uri.startsWith("id:")) {
+                rlStr = uri.substring("id:".length());
+            } else if (uri.startsWith("identifier:")) {
+                rlStr = uri.substring("identifier:".length());
+            } else if (uri.startsWith("data:")) {
+                return null;
+            } else {
+                throw new IOException("Invalid Minecraft glTF image " + index + " uri: '" + uri +
+                    "'. Allowed uri types: 'rl:', 'resourcelocation:', 'id:', 'identifier:', and 'data:'.");
+            }
+
+            try {
+                return ResourceLocation.parse(rlStr);
+            } catch (ResourceLocationException e) {
+                throw new IOException("Invalid uri resource location: '" + rlStr + "' in image " + index);
+            }
+        } else {
+            throw new IOException("Image " + index + " does not have a uri or buffer referenced");
+        }
+    }
+
+    public @Nullable BufferAccess getImageBuffer(int index) throws IOException {
+        List<GltfImage> images = root.images();
+        if (index < 0 || index >= images.size())
+            throw new IOException("Attempted to access image " + index + " which does not exist");
+        GltfImage image = images.get(index);
+        if (image.bufferView().isPresent()) {
+            return getRawBufferView(image.bufferView().getAsInt());
+        } else if (image.uri().isPresent()) {
+            String uri = image.uri().get();
+
+            if (uri.startsWith("rl:") || uri.startsWith("resourcelocation:") || uri.startsWith("id:") ||
+                uri.startsWith("identifier:")) {
+                return null;
+            } else if (uri.startsWith("data:")) {
+                int start = uri.indexOf(';');
+                String base64 = uri.substring(start + 1);
+                try {
+                    return DenseArrayBufferAccess.fromBase64(base64);
+                } catch (IllegalArgumentException e) {
+                    throw new IOException("Data url in image " + index + " contained invalid base-64 data", e);
+                }
+            } else {
+                throw new IOException("Invalid Minecraft glTF image " + index + " uri: '" + uri +
+                    "'. Allowed uri types: 'rl:', 'resourcelocation:', 'id:', 'identifier:', and 'data:'.");
+            }
+        } else {
+            throw new IOException("Image " + index + " does not have a uri or buffer referenced");
+        }
+    }
+
+    public Accessor getAccessor(int index) throws IOException {
+        List<GltfAccessor> accessors = root.accessors();
+        if (index < 0 || index >= accessors.size())
+            throw new IOException("Attempted to access accessor " + index + " which does not exist");
+        GltfAccessor accessor = accessors.get(index);
+
+        if (accessor.bufferView().isPresent()) {
+            int viewIndex = accessor.bufferView().getAsInt();
+            List<GltfBufferView> views = root.bufferViews();
+            if (viewIndex < 0 || viewIndex >= views.size()) throw new IOException(
+                "Accessor " + index + " references buffer view " + accessor.bufferView() + " which does not exist");
+            GltfBufferView view = views.get(viewIndex);
+
+            BufferAccess access = getRawBufferView(viewIndex);
+
+            if (view.byteStride().isPresent()) {
+                access =
+                    new StrideBufferAccess(access, (int) view.byteStride().getAsLong(), (int) accessor.byteOffset(),
+                        (int) accessor.count(), accessor.componentType(), accessor.type(), true);
+            }
+
+            if (accessor.sparse().isPresent()) {
+                GltfAccessorSparse sparse = accessor.sparse().get();
+                access = new SparseBufferAccess(access, accessor.componentType(), accessor.type(), (int) sparse.count(),
+                    getRawBufferView(sparse.indices().bufferView()), (int) sparse.indices().byteOffset(),
+                    sparse.indices().componentType(), getRawBufferView(sparse.values().bufferView()),
+                    (int) sparse.values().byteOffset());
+            }
+
+            return new Accessor(accessor, access);
+        } else if (accessor.sparse().isPresent()) {
+            GltfAccessorSparse sparse = accessor.sparse().get();
+            return new Accessor(accessor,
+                new SparseBufferAccess(null, accessor.componentType(), accessor.type(), (int) sparse.count(),
+                    getRawBufferView(sparse.indices().bufferView()), (int) sparse.indices().byteOffset(),
+                    sparse.indices().componentType(), getRawBufferView(sparse.values().bufferView()),
+                    (int) sparse.values().byteOffset()));
+        } else {
+            throw new IOException("Accessor " + index + " does not reference a buffer and is not sparse");
+        }
+    }
+
+    public record Accessor(GltfAccessor accessor, BufferAccess buffer) {}
 }

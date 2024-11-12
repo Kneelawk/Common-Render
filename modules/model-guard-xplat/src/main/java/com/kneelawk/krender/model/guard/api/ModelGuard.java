@@ -1,5 +1,6 @@
 package com.kneelawk.krender.model.guard.api;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
@@ -20,6 +21,11 @@ public interface ModelGuard {
      */
     Codec<ModelGuard> CODEC =
         ModelGuards.CODEC_REGISTRY.byNameCodec().dispatch(ModelGuard::getCodec, Function.identity());
+
+    /**
+     * The codec for model guard files.
+     */
+    Codec<List<ModelGuard>> FILE_CODEC = CODEC.listOf().fieldOf("guards").codec();
 
     /**
      * {@return this model guard's codec}

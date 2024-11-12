@@ -12,6 +12,8 @@ import com.kneelawk.krender.model.gltf.impl.KGltfConstants;
 public class NeoForgeClientMod {
     @SubscribeEvent
     public static void onClientInit(FMLClientSetupEvent event) {
-        KGltf.register();
+//        System.out.println("Client init:");
+//        KGltf.register();
+//        event.enqueueWork(KGltf::registerSync);
     }
 }

@@ -116,3 +116,7 @@ module(neoforge, "model-gltf-neoforge")
 example(xplat, "ct-complicated-xplat")
 example(fabric, "ct-complicated-fabric")
 example(neoforge, "ct-complicated-neoforge")
+
+example(xplat, "static-models-xplat")
+example(fabric, "static-models-fabric")
+example(neoforge, "static-models-neoforge")

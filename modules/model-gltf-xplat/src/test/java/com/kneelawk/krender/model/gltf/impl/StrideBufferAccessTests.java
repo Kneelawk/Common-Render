@@ -9,7 +9,7 @@ import com.kneelawk.krender.model.gltf.impl.format.GltfAccessorType;
 public class StrideBufferAccessTests {
     @Test
     void testCopyBytes1() {
-        DenseArrayBufferAccess denseAccess = new DenseArrayBufferAccess(new byte[]{0, 1, 2, 3, 4, 5, 6, 7}, 0);
+        DenseArrayBufferAccess denseAccess = new DenseArrayBufferAccess(new byte[]{0, 1, 2, 3, 4, 5, 6, 7}, 0, 8);
         StrideBufferAccess strideAccess =
             new StrideBufferAccess(denseAccess, 4, 0, 2, GltfAccessorComponentType.SIGNED_BYTE, GltfAccessorType.VEC3,
                 true);
@@ -23,7 +23,7 @@ public class StrideBufferAccessTests {
     @Test
     void testCopyBytes2() {
         DenseArrayBufferAccess denseAccess =
-            new DenseArrayBufferAccess(new byte[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}, 0);
+            new DenseArrayBufferAccess(new byte[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}, 0, 16);
         StrideBufferAccess strideAccess =
             new StrideBufferAccess(denseAccess, 4, 0, 2, GltfAccessorComponentType.SIGNED_BYTE, GltfAccessorType.MAT2,
                 true);

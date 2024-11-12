@@ -39,7 +39,7 @@ import com.kneelawk.krender.engine.base.model.BakedModelCoreProvider;
 public class FRAPICachedBakedModelImpl implements BakedModel, BakedModelCoreProvider {
     private final BakedModelCore<?> core;
 
-    private final LoadingCache<Object, Mesh> meshCache =
+    private final LoadingCache<ModelKeyHolder, Mesh> meshCache =
         CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.MINUTES).build(CacheLoader.from(key -> {
             MeshBuilder builder =
                 Objects.requireNonNull(RendererAccess.INSTANCE.getRenderer(), "No FRAPI renderer").meshBuilder();
@@ -48,9 +48,9 @@ public class FRAPICachedBakedModelImpl implements BakedModel, BakedModelCoreProv
         }));
 
     @SuppressWarnings("unchecked")
-    private void render(Object key, MeshBuilder builder) {
+    private void render(ModelKeyHolder key, MeshBuilder builder) {
         try {
-            ((BakedModelCore<Object>) core).renderBlock(new FRAPIQuadEmitter(builder.getEmitter()), key);
+            ((BakedModelCore<Object>) core).renderBlock(new FRAPIQuadEmitter(builder.getEmitter()), key.modelKey());
         } catch (Exception e) {
             KRBFRLog.LOG.error("Error rendering cached quads for model");
         }
@@ -108,7 +108,7 @@ public class FRAPICachedBakedModelImpl implements BakedModel, BakedModelCoreProv
                                Supplier<RandomSource> randomSupplier, RenderContext context) {
         Object key = core.getBlockKey(new ModelBlockContext(blockView, pos, state, randomSupplier));
         try {
-            Mesh mesh = meshCache.get(key);
+            Mesh mesh = meshCache.get(new ModelKeyHolder(key));
             mesh.outputTo(context.getEmitter());
         } catch (ExecutionException e) {
             KRBFRLog.LOG.error("Error caching model", e);

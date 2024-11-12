@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
+import java.util.stream.IntStream;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
@@ -11,7 +12,9 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 
 public class Codecs {
-    static final Codec<float[]> FLOAT_ARRAY = Codec.FLOAT.listOf().xmap(l -> {
+    public static final Codec<int[]> INT_ARRAY = Codec.INT_STREAM.xmap(IntStream::toArray, IntStream::of);
+
+    public static final Codec<float[]> FLOAT_ARRAY = Codec.FLOAT.listOf().xmap(l -> {
         int len = l.size();
         float[] a = new float[len];
         for (int i = 0; i < len; i++) {

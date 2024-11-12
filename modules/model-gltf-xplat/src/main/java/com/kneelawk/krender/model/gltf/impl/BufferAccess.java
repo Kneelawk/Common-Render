@@ -2,6 +2,12 @@ package com.kneelawk.krender.model.gltf.impl;
 
 import java.io.InputStream;
 
+import org.jetbrains.annotations.Nullable;
+
+import org.joml.Vector2f;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
+
 import com.kneelawk.krender.model.gltf.impl.format.GltfAccessorComponentType;
 
 public interface BufferAccess {
@@ -15,7 +21,9 @@ public interface BufferAccess {
 
     int size();
 
-    InputStream createStream();
+    default InputStream createStream() {
+        return new BufferAccessInputStream(this);
+    }
 
     default void copyBytes(int byteIndex, byte[] to, int offset, int length) {
         for (int i = 0; i < length; i++) {
@@ -59,5 +67,29 @@ public interface BufferAccess {
             case UNSIGNED_INT -> getInt(byteIndex);
             case FLOAT -> (int) getFloat(byteIndex);
         };
+    }
+
+    default Vector2f getVec2f(int byteIndex, @Nullable Vector2f vec) {
+        if (vec == null) {
+            vec = new Vector2f();
+        }
+        vec.set(getFloat(byteIndex), getFloat(byteIndex + 4));
+        return vec;
+    }
+
+    default Vector3f getVec3f(int byteIndex, @Nullable Vector3f vec) {
+        if (vec == null) {
+            vec = new Vector3f();
+        }
+        vec.set(getFloat(byteIndex), getFloat(byteIndex + 4), getFloat(byteIndex + 8));
+        return vec;
+    }
+
+    default Vector4f getVec4f(int byteIndex, @Nullable Vector4f vec) {
+        if (vec == null) {
+            vec = new Vector4f();
+        }
+        vec.set(getFloat(byteIndex), getFloat(byteIndex + 4), getFloat(byteIndex + 8), getFloat(byteIndex + 12));
+        return vec;
     }
 }

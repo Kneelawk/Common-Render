@@ -1,0 +1,32 @@
+modLoader = "javafml"
+loaderVersion = "[1,)"
+license = "MIT"
+
+[[mods]]
+modId = "${mod_id}"
+version = "${version}"
+displayName = "Static Models Example"
+authors = "Kneelawk"
+description = "Example using static model loaders."
+logoFile = "assets/${mod_id}/icon.png"
+
+[[dependencies.${mod_id}]]
+modId = "neoforge"
+type = "REQUIRED"
+versionRange = "[21.0,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.${mod_id}]]
+modId = "krender_model_gltf"
+type = "REQUIRED"
+versionRange = "*"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.${mod_id}]]
+modId = "krender_engine_api"
+type = "REQUIRED"
+versionRange = "*"
+ordering = "NONE"
+side = "BOTH"

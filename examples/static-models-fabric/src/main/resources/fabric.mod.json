@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "id": "${mod_id}",
+  "version": "${version}",
+  "name": "Static Models Example",
+  "description": "Example using static model loaders.",
+  "authors": [
+    "Kneelawk"
+  ],
+  "contact": {
+    "homepage": "https://github.com/Kneelawk/KRender",
+    "issues": "https://github.com/Kneelawk/KRender/issues",
+    "sources": "https://github.com/Kneelawk/KRender"
+  },
+  "license": "MIT",
+  "icon": "assets/${mod_id}/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      {
+        "value": "com.kneelawk.krender.staticmodels.fabric.FabricMod"
+      }
+    ]
+  },
+  "mixins": [ ],
+  "depends": {
+    "fabricloader": ">=0.15.0",
+    "fabric-api": "*",
+    "krender_model_loading": "*",
+    "krender_engine_api": "*",
+    "minecraft": ">=1.21- <1.22-",
+    "java": ">=17"
+  }
+}
