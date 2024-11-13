@@ -30,6 +30,8 @@ public class RetextureQuadTransform implements QuadTransform<TextureAtlasSprite>
     private final SpriteFinder finder =
         SpriteFinder.get(Minecraft.getInstance().getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS));
 
+    private RetextureQuadTransform() {}
+
     @Override
     public void transform(@UnknownNullability TextureAtlasSprite context, QuadView input, QuadEmitter output) {
         input.copyTo(output);

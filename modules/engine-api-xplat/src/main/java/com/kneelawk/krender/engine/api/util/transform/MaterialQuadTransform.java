@@ -13,6 +13,8 @@ import com.kneelawk.krender.engine.api.material.RenderMaterial;
 public class MaterialQuadTransform implements QuadTransform<RenderMaterial> {
     private static final MaterialQuadTransform INSTANCE = new MaterialQuadTransform();
 
+    private MaterialQuadTransform() {}
+
     /**
      * {@return the quad transform instance}
      */
