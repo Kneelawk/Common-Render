@@ -8,6 +8,8 @@ import java.util.function.Function;
 
 import org.jetbrains.annotations.Nullable;
 
+import org.joml.Matrix4f;
+import org.joml.Quaternionf;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
@@ -23,11 +25,13 @@ import net.minecraft.client.resources.model.UnbakedModel;
 import net.minecraft.resources.ResourceLocation;
 
 import com.kneelawk.krender.engine.api.KRenderer;
+import com.kneelawk.krender.engine.api.buffer.PooledQuadEmitter;
 import com.kneelawk.krender.engine.api.buffer.QuadEmitter;
 import com.kneelawk.krender.engine.api.material.RenderMaterial;
 import com.kneelawk.krender.engine.api.mesh.MeshBuilder;
 import com.kneelawk.krender.engine.api.model.SimpleModelCore;
 import com.kneelawk.krender.engine.api.util.ColorUtil;
+import com.kneelawk.krender.engine.api.util.transform.MatrixQuadTransform;
 import com.kneelawk.krender.model.gltf.impl.format.GltfAccessor;
 import com.kneelawk.krender.model.gltf.impl.format.GltfAccessorComponentType;
 import com.kneelawk.krender.model.gltf.impl.format.GltfAccessorType;
@@ -63,21 +67,28 @@ public class GltfUnbakedModel implements UnbakedModel {
     @Override
     public @Nullable BakedModel bake(ModelBaker baker, Function<Material, TextureAtlasSprite> spriteGetter,
                                      ModelState state) {
-        System.out.println("========");
-        System.out.println("Loading " + name);
         Function<ResourceLocation, TextureAtlasSprite> blockSprite =
             resourceLocation -> spriteGetter.apply(new Material(TextureAtlas.LOCATION_BLOCKS, resourceLocation));
         try {
             MeshBuilder meshBuilder = KRenderer.getDefault().meshBuilder();
             TextureAtlasSprite particleTexture = blockSprite.apply(MissingTextureAtlasSprite.getLocation());
-            // TODO: push transforms
-            QuadEmitter emitter = meshBuilder.emitter();
 
-            if (file.root().scene().isPresent()) {
-                loadScene(emitter, blockSprite, file.root().scenes().get(file.root().scene().getAsInt()));
-            } else {
-                for (GltfScene scene : file.root().scenes()) {
-                    loadScene(emitter, blockSprite, scene);
+            // build transform matrix
+            Matrix4f baseTransform = new Matrix4f().identity();
+            baseTransform.translate(metadata.translation().toVector3f());
+            baseTransform.rotate((float) metadata.rotation().z, 0f, 0f, 1f)
+                .rotate((float) metadata.rotation().y, 0f, 1f, 0f).rotate((float) metadata.rotation().x, 1f, 0f, 0f);
+            baseTransform.scale(metadata.scale().toVector3f());
+
+            QuadEmitter emitter = meshBuilder.emitter();
+            try (PooledQuadEmitter pooled = emitter.withTransformQuad(baseTransform,
+                MatrixQuadTransform.getInstance())) {
+                if (file.root().scene().isPresent()) {
+                    loadScene(pooled, blockSprite, file.root().scenes().get(file.root().scene().getAsInt()));
+                } else {
+                    for (GltfScene scene : file.root().scenes()) {
+                        loadScene(pooled, blockSprite, scene);
+                    }
                 }
             }
 
@@ -86,9 +97,6 @@ public class GltfUnbakedModel implements UnbakedModel {
         } catch (Exception e) {
             KGltfLog.LOG.error("Error loading model '{}'", name, e);
             return baker.bake(ModelBakery.MISSING_MODEL_LOCATION, state);
-        } finally {
-            System.out.println("Finished " + name);
-            System.out.println("========");
         }
     }
 
@@ -101,15 +109,32 @@ public class GltfUnbakedModel implements UnbakedModel {
 
     private void loadNode(QuadEmitter emitter, Function<ResourceLocation, TextureAtlasSprite> blockSprite,
                           GltfNode node) throws IOException {
-        // TODO: push transforms
+        Matrix4f nodeTransforms = new Matrix4f();
 
-        if (node.mesh().isPresent()) {
-            int meshIndex = node.mesh().getAsInt();
-            loadMesh(emitter, blockSprite, file.root().meshes().get(meshIndex), meshIndex);
+        if (node.matrix().length == 16) {
+            nodeTransforms.set(node.matrix());
+        } else {
+            if (node.translation().length == 3) {
+                nodeTransforms.translate(node.translation()[0], node.translation()[1], node.translation()[2]);
+            }
+            if (node.rotation().length == 4) {
+                nodeTransforms.rotate(
+                    new Quaternionf(node.rotation()[0], node.rotation()[1], node.rotation()[2], node.rotation()[3]));
+            }
+            if (node.scale().length == 3) {
+                nodeTransforms.scale(node.scale()[0], node.scale()[1], node.scale()[2]);
+            }
         }
 
-        for (int child : node.children()) {
-            loadNode(emitter, blockSprite, file.root().nodes().get(child));
+        try (PooledQuadEmitter pooled = emitter.withTransformQuad(nodeTransforms, MatrixQuadTransform.getInstance())) {
+            if (node.mesh().isPresent()) {
+                int meshIndex = node.mesh().getAsInt();
+                loadMesh(pooled, blockSprite, file.root().meshes().get(meshIndex), meshIndex);
+            }
+
+            for (int child : node.children()) {
+                loadNode(pooled, blockSprite, file.root().nodes().get(child));
+            }
         }
     }
 

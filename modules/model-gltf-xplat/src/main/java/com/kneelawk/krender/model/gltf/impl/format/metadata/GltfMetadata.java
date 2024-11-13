@@ -22,7 +22,7 @@ public record GltfMetadata(Vec3 translation, Vec3 rotation, Vec3 scale) {
 
         @Override
         public String getMetadataSectionName() {
-            return "krender_gltf";
+            return "krender:gltf";
         }
 
         @Override

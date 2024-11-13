@@ -46,6 +46,7 @@ public class TransformingQuadEmitter extends BaseQuadEmitter implements PooledQu
     public TransformingQuadEmitter(BaseKRendererApi renderer, TransformStack transformStack) {
         super(renderer);
         this.transformStack = transformStack;
+        begin(new int[BaseQuadFormat.TOTAL_STRIDE], 0);
     }
 
     /**

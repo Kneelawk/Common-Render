@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "static_models:block/sphere"
+      "model": "static_models:block/lamp"
     }
   }
 }
