@@ -76,8 +76,9 @@ public class GltfUnbakedModel implements UnbakedModel {
             // build transform matrix
             Matrix4f baseTransform = new Matrix4f().identity();
             baseTransform.translate(metadata.translation().toVector3f());
-            baseTransform.rotate((float) metadata.rotation().z, 0f, 0f, 1f)
-                .rotate((float) metadata.rotation().y, 0f, 1f, 0f).rotate((float) metadata.rotation().x, 1f, 0f, 0f);
+            baseTransform.rotate((float) (metadata.rotation().z / Math.PI * 180.0), 0f, 0f, 1f)
+                .rotate((float) (metadata.rotation().y / Math.PI * 180.0), 0f, 1f, 0f)
+                .rotate((float) (metadata.rotation().x / Math.PI * 180.0), 1f, 0f, 0f);
             baseTransform.scale(metadata.scale().toVector3f());
 
             QuadEmitter emitter = meshBuilder.emitter();

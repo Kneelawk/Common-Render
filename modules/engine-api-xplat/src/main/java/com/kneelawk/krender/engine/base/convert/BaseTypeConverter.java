@@ -1,5 +1,10 @@
 package com.kneelawk.krender.engine.base.convert;
 
+import java.util.function.Function;
+
+import com.mojang.blaze3d.vertex.VertexConsumer;
+
+import com.kneelawk.krender.engine.api.buffer.QuadEmitter;
 import com.kneelawk.krender.engine.api.buffer.QuadSink;
 import com.kneelawk.krender.engine.api.convert.TypeConverter;
 import com.kneelawk.krender.engine.api.material.RenderMaterial;
@@ -20,7 +25,7 @@ public class BaseTypeConverter implements TypeConverter {
     /**
      * Creates a new base type converter.
      *
-     * @param renderer the renderer that this converter and everything it converts to will be assocated with.
+     * @param renderer the renderer that this converter and everything it converts to will be associated with.
      */
     public BaseTypeConverter(BaseKRendererApi renderer) {this.renderer = renderer;}
 
@@ -51,5 +56,15 @@ public class BaseTypeConverter implements TypeConverter {
         });
 
         return builder.build();
+    }
+
+    @Override
+    public QuadEmitter fromVertexConsumer(VertexConsumer consumer) {
+        return new VertexConsumerQuadEmitter(renderer, consumer);
+    }
+
+    @Override
+    public QuadEmitter fromVertexConsumerProvider(Function<RenderMaterial, VertexConsumer> provider) {
+        return new VertexConsumerProviderQuadEmitter(renderer, provider);
     }
 }

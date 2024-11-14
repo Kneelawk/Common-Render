@@ -1,5 +1,13 @@
 package com.kneelawk.krender.engine.api.convert;
 
+import java.util.function.Function;
+
+import com.mojang.blaze3d.vertex.VertexConsumer;
+
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+
+import com.kneelawk.krender.engine.api.buffer.QuadEmitter;
 import com.kneelawk.krender.engine.api.buffer.QuadSink;
 import com.kneelawk.krender.engine.api.material.RenderMaterial;
 import com.kneelawk.krender.engine.api.mesh.Mesh;
@@ -31,4 +39,36 @@ public interface TypeConverter {
      * @return the potentially new, roughly equivalent mesh that is associated with this backend.
      */
     Mesh toAssociated(Mesh mesh);
+
+    /**
+     * Creates a quad emitter that wraps the given {@link VertexConsumer}.
+     * <p>
+     * Note: most platforms likely will not support some features that require different render materials.
+     *
+     * @param consumer the vertex consumer to wrap.
+     * @return the quad emitter for the given vertex consumer.
+     */
+    QuadEmitter fromVertexConsumer(VertexConsumer consumer);
+
+    /**
+     * Creates a quad emitter that wraps the given {@link MultiBufferSource}.
+     *
+     * @param source the multi-buffer source to wrap.
+     * @return the quad emitter for the given multi-buffer source.
+     */
+    default QuadEmitter fromMultiBufferSource(MultiBufferSource source) {
+        return fromVertexConsumerProvider(mat -> {
+            RenderType type = mat.toVanilla();
+            if (type == null) return source.getBuffer(RenderType.cutout());
+            return source.getBuffer(type);
+        });
+    }
+
+    /**
+     * Creates a quad emitter that wraps the given provider of vertex consumers for render materials.
+     *
+     * @param provider the vertex consumer provider to wrap.
+     * @return the quad emitter for the given vertex consumer provider.
+     */
+    QuadEmitter fromVertexConsumerProvider(Function<RenderMaterial, VertexConsumer> provider);
 }

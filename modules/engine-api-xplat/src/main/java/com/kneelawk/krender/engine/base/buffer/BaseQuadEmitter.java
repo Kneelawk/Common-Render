@@ -362,7 +362,7 @@ public abstract class BaseQuadEmitter extends BaseQuadView implements QuadEmitte
 
         for (int i = 0; i < 4; i++) {
             final int index = baseIndex + HEADER_STRIDE + i * VERTEX_STRIDE + VERTEX_COLOR;
-            data[index] = ColorUtil.fromVanilla(data[index]);
+            data[index] = ColorUtil.fromNative(data[index]);
         }
 
         return this;
@@ -522,7 +522,7 @@ public abstract class BaseQuadEmitter extends BaseQuadView implements QuadEmitte
 
             // transform color
             if (respectExistingColors) {
-                final int color = ColorUtil.fromVanilla(data[index + VERTEX_COLOR]);
+                final int color = ColorUtil.fromNative(data[index + VERTEX_COLOR]);
                 data[index + VERTEX_COLOR] = toArgb(scale(red(color), toFixed(brightness[i] * red)),
                     scale(green(color), toFixed(brightness[i] * green)),
                     scale(blue(color), toFixed(brightness[i] * blue)), a);

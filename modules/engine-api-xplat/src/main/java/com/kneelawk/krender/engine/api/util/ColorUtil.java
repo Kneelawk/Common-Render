@@ -103,12 +103,12 @@ public final class ColorUtil {
     }
 
     /**
-     * Converts KRender ARGB color into vanilla color.
+     * Converts KRender ARGB color into native OpenGL color.
      *
      * @param argb the KRender ARGB color to convert.
      * @return the equivalent vanilla color.
      */
-    public static int toVanilla(int argb) {
+    public static int toNative(int argb) {
         // fullbright optimization
         if (argb == -1) return -1;
 
@@ -122,12 +122,12 @@ public final class ColorUtil {
     }
 
     /**
-     * Converts vanilla color into KRender ARGB color.
+     * Converts native OpenGL color into KRender ARGB color.
      *
      * @param color the vanilla color to convert.
      * @return the equivalent KRender ARGB color.
      */
-    public static int fromVanilla(int color) {
+    public static int fromNative(int color) {
         // fullbright optimization
         if (color == -1) return -1;
 
