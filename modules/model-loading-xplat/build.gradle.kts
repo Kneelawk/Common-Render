@@ -7,6 +7,8 @@ plugins {
 submodule {
     setRefmaps("krender_model_loading")
     setupJavadoc()
+    val common_events_version: String by project
+    xplatExternalDependency(include = false) { "com.kneelawk.common-events:common-events-$it:$common_events_version" }
 }
 
 kpublish {

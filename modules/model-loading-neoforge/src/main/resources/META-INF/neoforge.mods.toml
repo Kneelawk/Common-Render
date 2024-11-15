@@ -19,3 +19,10 @@ type = "REQUIRED"
 versionRange = "[21.0,)"
 ordering = "NONE"
 side = "BOTH"
+
+[[dependencies.${mod_id}]]
+modId = "common_events"
+type = "REQUIRED"
+versionRange = "[1,)"
+ordering = "NONE"
+side = "BOTH"

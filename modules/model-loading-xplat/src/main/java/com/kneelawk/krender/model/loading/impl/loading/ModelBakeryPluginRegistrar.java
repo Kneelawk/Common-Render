@@ -9,6 +9,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import net.minecraft.server.packs.resources.ResourceManager;
 
+import com.kneelawk.krender.model.loading.api.ModelBakeryInitCallback;
 import com.kneelawk.krender.model.loading.api.ModelBakeryPlugin;
 import com.kneelawk.krender.model.loading.api.PreparableModelBakeryPlugin;
 import com.kneelawk.krender.model.loading.impl.KRLog;
@@ -21,6 +22,10 @@ public class ModelBakeryPluginRegistrar {
     private static final ReentrantLock lock = new ReentrantLock();
     private static final List<ModelBakeryPlugin> plugins = new ArrayList<>();
     private static final List<PreparableModelBakeryPluginHolder<?>> preparables = new ArrayList<>();
+
+    static {
+        ModelBakeryInitCallback.EVENT.invoker().init(ModelBakeryInitContext.INSTANCE);
+    }
 
     public static void preparePlugins(ResourceManager resourceManager, Executor prepareExecutor) {
         PREPARE_FUTURE.set(prepare(resourceManager, prepareExecutor));

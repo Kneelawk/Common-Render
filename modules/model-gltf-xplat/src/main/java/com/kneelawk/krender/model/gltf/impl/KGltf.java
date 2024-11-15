@@ -16,6 +16,7 @@ import com.kneelawk.commonevents.api.Scan;
 import com.kneelawk.krender.model.gltf.impl.format.metadata.GltfMetadata;
 import com.kneelawk.krender.model.gltf.impl.mixin.impl.Accessor_SpriteSources;
 import com.kneelawk.krender.model.guard.api.ModelGuards;
+import com.kneelawk.krender.model.loading.api.ModelBakeryInitCallback;
 import com.kneelawk.krender.model.loading.api.ModelBakeryPlugin;
 import com.kneelawk.krender.reloadlistener.api.ReloadContext;
 import com.kneelawk.krender.reloadlistener.api.ReloadListenerEvents;
@@ -28,20 +29,15 @@ public class KGltf {
 
     @Listen(ReloadListenerEvents.Pre.class)
     public static void reloadResources(ReloadContext ctx) {
-        System.out.println("Reloading resources...");
         if (ctx.getPackType() == PackType.CLIENT_RESOURCES) {
             if (!initialized.getAndSet(true)) {
-                init();
+                registerSync();
             }
         }
     }
 
-    public static void init() {
-        register();
-        registerSync();
-    }
-
-    public static void register() {
+    @Listen(ModelBakeryInitCallback.class)
+    public static void registerModels(ModelBakeryInitCallback.Context ctx0) {
         ModelBakeryPlugin.registerPreparable((resourceManager, prepareExecutor) -> CompletableFuture.supplyAsync(() -> {
             Map<ResourceLocation, GltfUnbakedModel> unbakedModels = new Object2ObjectLinkedOpenHashMap<>();
 
@@ -76,11 +72,12 @@ public class KGltf {
             }
 
             return unbakedModels;
-        }, prepareExecutor), (resource, ctx) -> ctx.addLowLevelModels(resource));
+        }, prepareExecutor), (resource, ctx) -> {
+            ctx.addLowLevelModels(resource);
+        });
     }
 
     public static void registerSync() {
-        System.out.println("Adding...");
         Accessor_SpriteSources.krender$types().put(prl("gltf"), GltfSpriteSource.TYPE);
     }
 }

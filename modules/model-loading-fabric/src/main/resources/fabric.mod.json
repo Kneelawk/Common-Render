@@ -23,6 +23,7 @@
     "fabricloader": ">=0.15.0",
     "fabric-api": "*",
     "minecraft": ">=1.21- <1.22-",
+    "common_events": ">=1",
     "java": ">=17"
   },
   "custom": {
