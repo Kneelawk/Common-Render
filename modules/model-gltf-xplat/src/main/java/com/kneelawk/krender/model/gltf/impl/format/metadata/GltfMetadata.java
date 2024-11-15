@@ -3,16 +3,19 @@ package com.kneelawk.krender.model.gltf.impl.format.metadata;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import com.google.gson.JsonObject;
 
 import org.joml.Matrix4f;
 
+import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.minecraft.Util;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.metadata.MetadataSectionSerializer;
 import net.minecraft.world.phys.Vec3;
 
@@ -21,7 +24,8 @@ public record GltfMetadata(Vec3 translation, Vec3 rotation, Vec3 scale, List<Met
                            Map<String, MaterialOverride> materialOverrides,
                            Map<String, MaterialOverride> meshMaterialOverrides,
                            Map<String, MaterialOverride> nodeMaterialOverride,
-                           boolean useAmbientOcclusion, boolean gui3d) {
+                           boolean useAmbientOcclusion, boolean gui3d,
+                           Optional<Either<Integer, ResourceLocation>> particle) {
 
     private static final Codec<Matrix4f> MATRIX_CODEC =
         Codec.FLOAT.listOf().comapFlatMap(list -> Util.fixedSize(list, 16).map(listx -> {
@@ -55,11 +59,12 @@ public record GltfMetadata(Vec3 translation, Vec3 rotation, Vec3 scale, List<Met
         Codec.unboundedMap(Codec.STRING, MaterialOverride.CODEC).optionalFieldOf("nodeMaterialOverrides", Map.of())
             .forGetter(GltfMetadata::materialOverrides),
         Codec.BOOL.optionalFieldOf("useAmbientOcclusion", true).forGetter(GltfMetadata::useAmbientOcclusion),
-        Codec.BOOL.optionalFieldOf("gui3d", true).forGetter(GltfMetadata::gui3d)
+        Codec.BOOL.optionalFieldOf("gui3d", true).forGetter(GltfMetadata::gui3d),
+        Codec.either(Codec.INT, ResourceLocation.CODEC).optionalFieldOf("particle").forGetter(GltfMetadata::particle)
     ).apply(instance, GltfMetadata::new));
     public static final GltfMetadata DEFAULT =
         new GltfMetadata(Vec3.ZERO, Vec3.ZERO, new Vec3(1.0, 1.0, 1.0), List.of(), new Matrix4f(),
-            MaterialOverride.DEFAULT, Map.of(), Map.of(), Map.of(), true, true);
+            MaterialOverride.DEFAULT, Map.of(), Map.of(), Map.of(), true, true, Optional.empty());
 
     public void transformMatrix(Matrix4f matrix) {
         matrix.translate(translation.toVector3f());

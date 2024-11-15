@@ -80,6 +80,26 @@ public class GltfUnbakedModel implements UnbakedModel {
             Matrix4f baseTransform = new Matrix4f().identity();
             metadata.transformMatrix(baseTransform);
 
+            if (!file.root().images().isEmpty()) {
+                particleTexture = blockSprite.apply(getImage(0));
+            }
+
+            if (metadata.particle().isPresent()) {
+                if (metadata.particle().get().left().isPresent()) {
+                    int particleIndex = metadata.particle().get().left().get();
+                    if (particleIndex < 0 || particleIndex > file.root().images().size()) {
+                        particleTexture = blockSprite.apply(MissingTextureAtlasSprite.getLocation());
+                        KGltfLog.LOG.warn(
+                            "Model {} has metadata that requests a particle texture image index of {} out of {} images",
+                            name, particleIndex, file.root().images().size());
+                    } else {
+                        particleTexture = blockSprite.apply(getImage(particleIndex));
+                    }
+                } else if (metadata.particle().get().right().isPresent()) {
+                    particleTexture = blockSprite.apply(metadata.particle().get().right().get());
+                }
+            }
+
             QuadEmitter emitter = meshBuilder.emitter();
             try (PooledQuadEmitter pooled = emitter.withTransformQuad(baseTransform,
                 MatrixQuadTransform.getInstance())) {
