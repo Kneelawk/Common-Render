@@ -37,6 +37,16 @@ public final class ColorUtil {
     }
 
     /**
+     * Converts an 8-bit color value between 0x00 and 0xFF into a float between 0.0 and 1.0.
+     *
+     * @param i the color value to convert.
+     * @return the equivalent float value.
+     */
+    public static float fromFixed(int i) {
+        return (float) i / 255f;
+    }
+
+    /**
      * Combines four integer values each between 0x00 and 0xFF into an integer color.
      *
      * @param r the red value.
@@ -100,6 +110,46 @@ public final class ColorUtil {
      */
     public static int alpha(int argb) {
         return (argb >>> 24) & 0xFF;
+    }
+
+    /**
+     * Gets the red component of an ARGB color integer as a float between 0.0 and 1.0.
+     *
+     * @param argb the full color.
+     * @return the red float component.
+     */
+    public static float redFloat(int argb) {
+        return fromFixed(red(argb));
+    }
+
+    /**
+     * Gets the green component of an ARGB color integer as a float between 0.0 and 1.0.
+     *
+     * @param argb the full color.
+     * @return the green float component.
+     */
+    public static float greenFloat(int argb) {
+        return fromFixed(green(argb));
+    }
+
+    /**
+     * Gets the blue component of an ARGB color integer as a float between 0.0 and 1.0.
+     *
+     * @param argb the full color.
+     * @return the blue float component.
+     */
+    public static float blueFloat(int argb) {
+        return fromFixed(blue(argb));
+    }
+
+    /**
+     * Gets the alpha component of an ARGB color integer as a float between 0.0 and 1.0.
+     *
+     * @param argb the full color.
+     * @return the alpha float component.
+     */
+    public static float alphaFloat(int argb) {
+        return fromFixed(alpha(argb));
     }
 
     /**

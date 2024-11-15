@@ -1,8 +1,11 @@
 package com.kneelawk.krender.engine.api;
 
+import java.util.function.Function;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 
 import net.minecraft.util.StringRepresentable;
@@ -29,7 +32,11 @@ public enum TriState implements StringRepresentable {
     /**
      * Tri state codec.
      */
-    public static final Codec<TriState> CODEC = StringRepresentable.fromEnum(TriState::values);
+    public static final Codec<TriState> CODEC = Codec.either(StringRepresentable.fromEnum(TriState::values), Codec.BOOL)
+        .xmap(either -> either.map(Function.identity(), TriState::of), tri -> {
+            if (tri != DEFAULT) return Either.right(tri.booleanValue());
+            else return Either.left(tri);
+        });
 
     /**
      * Gets the tri-state for the given boolean value.
