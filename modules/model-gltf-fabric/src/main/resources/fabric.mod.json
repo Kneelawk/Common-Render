@@ -15,7 +15,13 @@
   "license": "MIT",
   "icon": "assets/${mod_id}/icon.png",
   "environment": "client",
-  "entrypoints": {},
+  "entrypoints": {
+    "client": [
+      {
+        "value": "com.kneelawk.krender.model.gltf.fabric.impl.FabricClientMod"
+      }
+    ]
+  },
   "mixins": [
     "${mod_id}.mixins.json"
   ],

@@ -3,41 +3,21 @@ package com.kneelawk.krender.model.gltf.impl;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.Resource;
 
-import com.kneelawk.commonevents.api.Listen;
-import com.kneelawk.commonevents.api.Scan;
 import com.kneelawk.krender.model.gltf.impl.format.metadata.GltfMetadata;
 import com.kneelawk.krender.model.gltf.impl.mixin.impl.Accessor_SpriteSources;
 import com.kneelawk.krender.model.guard.api.ModelGuards;
-import com.kneelawk.krender.model.loading.api.ModelBakeryInitCallback;
 import com.kneelawk.krender.model.loading.api.ModelBakeryPlugin;
-import com.kneelawk.krender.reloadlistener.api.ReloadContext;
-import com.kneelawk.krender.reloadlistener.api.ReloadListenerEvents;
 
 import static com.kneelawk.krender.model.gltf.impl.KGltfConstants.prl;
 
-@Scan(side = Scan.Side.CLIENT)
 public class KGltf {
-    private static final AtomicBoolean initialized = new AtomicBoolean(false);
-
-    @Listen(ReloadListenerEvents.Pre.class)
-    public static void reloadResources(ReloadContext ctx) {
-        if (ctx.getPackType() == PackType.CLIENT_RESOURCES) {
-            if (!initialized.getAndSet(true)) {
-                registerSync();
-            }
-        }
-    }
-
-    @Listen(ModelBakeryInitCallback.class)
-    public static void registerModels(ModelBakeryInitCallback.Context ctx0) {
+    public static void init() {
         ModelBakeryPlugin.registerPreparable((resourceManager, prepareExecutor) -> CompletableFuture.supplyAsync(() -> {
             Map<ResourceLocation, GltfUnbakedModel> unbakedModels = new Object2ObjectLinkedOpenHashMap<>();
 
@@ -77,7 +57,7 @@ public class KGltf {
         });
     }
 
-    public static void registerSync() {
+    public static void initSync() {
         Accessor_SpriteSources.krender$types().put(prl("gltf"), GltfSpriteSource.TYPE);
     }
 }
