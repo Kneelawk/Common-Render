@@ -78,6 +78,7 @@ public class GltfUnbakedModel implements UnbakedModel {
 
             // build transform matrix
             Matrix4f baseTransform = new Matrix4f().identity();
+            baseTransform.mul(state.getRotation().getMatrix());
             metadata.transformMatrix(baseTransform);
 
             if (!file.root().images().isEmpty()) {
@@ -101,7 +102,8 @@ public class GltfUnbakedModel implements UnbakedModel {
             }
 
             QuadEmitter emitter = meshBuilder.emitter();
-            try (PooledQuadEmitter pooled = emitter.withTransformQuad(baseTransform,
+            try (PooledQuadEmitter pooled = emitter.withTransformQuad(
+                new MatrixQuadTransform.Options(baseTransform, metadata.transformGranularity()),
                 MatrixQuadTransform.getInstance())) {
                 if (file.root().scene().isPresent()) {
                     loadScene(KRenderer.getDefault().materialManager(), pooled, metadata, blockSprite,
@@ -156,7 +158,9 @@ public class GltfUnbakedModel implements UnbakedModel {
             material = metadata.getNodeMaterial(node.name().get(), material);
         }
 
-        try (PooledQuadEmitter pooled = emitter.withTransformQuad(nodeTransforms, MatrixQuadTransform.getInstance())) {
+        try (PooledQuadEmitter pooled = emitter.withTransformQuad(
+            new MatrixQuadTransform.Options(nodeTransforms, metadata.transformGranularity()),
+            MatrixQuadTransform.getInstance())) {
             if (node.mesh().isPresent()) {
                 int meshIndex = node.mesh().getAsInt();
                 loadMesh(manager, pooled, metadata, blockSprite, material, file.root().meshes().get(meshIndex),

@@ -23,5 +23,5 @@ public class SMBlocks {
         ITEMS.register("lamp", () -> new BlockItem(LAMP.get(), new Item.Properties()));
 
     @Listen(RegisterCallback.class)
-    public static void register(RegisterCallback.Context ctx) {}
+    public static void register() {}
 }

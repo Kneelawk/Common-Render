@@ -25,7 +25,8 @@ public record GltfMetadata(Vec3 translation, Vec3 rotation, Vec3 scale, List<Met
                            Map<String, MaterialOverride> meshMaterialOverrides,
                            Map<String, MaterialOverride> nodeMaterialOverride,
                            boolean useAmbientOcclusion, boolean gui3d,
-                           Optional<Either<Integer, ResourceLocation>> particle) {
+                           Optional<Either<Integer, ResourceLocation>> particle,
+                           float transformGranularity) {
 
     private static final Codec<Matrix4f> MATRIX_CODEC =
         Codec.FLOAT.listOf().comapFlatMap(list -> Util.fixedSize(list, 16).map(listx -> {
@@ -60,11 +61,12 @@ public record GltfMetadata(Vec3 translation, Vec3 rotation, Vec3 scale, List<Met
             .forGetter(GltfMetadata::materialOverrides),
         Codec.BOOL.optionalFieldOf("useAmbientOcclusion", true).forGetter(GltfMetadata::useAmbientOcclusion),
         Codec.BOOL.optionalFieldOf("gui3d", true).forGetter(GltfMetadata::gui3d),
-        Codec.either(Codec.INT, ResourceLocation.CODEC).optionalFieldOf("particle").forGetter(GltfMetadata::particle)
+        Codec.either(Codec.INT, ResourceLocation.CODEC).optionalFieldOf("particle").forGetter(GltfMetadata::particle),
+        Codec.FLOAT.optionalFieldOf("transformGranularity", 0f).forGetter(GltfMetadata::transformGranularity)
     ).apply(instance, GltfMetadata::new));
     public static final GltfMetadata DEFAULT =
         new GltfMetadata(Vec3.ZERO, Vec3.ZERO, new Vec3(1.0, 1.0, 1.0), List.of(), new Matrix4f(),
-            MaterialOverride.DEFAULT, Map.of(), Map.of(), Map.of(), true, true, Optional.empty());
+            MaterialOverride.DEFAULT, Map.of(), Map.of(), Map.of(), true, true, Optional.empty(), 0f);
 
     public void transformMatrix(Matrix4f matrix) {
         matrix.translate(translation.toVector3f());
