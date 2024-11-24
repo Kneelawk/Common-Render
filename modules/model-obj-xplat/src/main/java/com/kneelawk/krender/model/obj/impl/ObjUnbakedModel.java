@@ -25,6 +25,7 @@ import net.minecraft.resources.ResourceLocation;
 import com.kneelawk.krender.engine.api.KRenderer;
 import com.kneelawk.krender.engine.api.buffer.PooledQuadEmitter;
 import com.kneelawk.krender.engine.api.buffer.QuadEmitter;
+import com.kneelawk.krender.engine.api.material.BlendMode;
 import com.kneelawk.krender.engine.api.material.MaterialFinder;
 import com.kneelawk.krender.engine.api.material.MaterialManager;
 import com.kneelawk.krender.engine.api.material.RenderMaterial;
@@ -91,6 +92,10 @@ public class ObjUnbakedModel implements UnbakedModel {
             for (MtlMaterial material : file.materials().values()) {
                 finder.clear();
                 finder.setEmissive(material.emissive());
+                if (material.dissolve() < 1 - QuadEmitter.EPSILON) {
+                    finder.setBlendMode(BlendMode.TRANSLUCENT);
+                }
+
                 MaterialOverride override = metadata.getMaterial(material.name(), MaterialOverride.DEFAULT);
                 RenderMaterial renderMaterial = override
                     .toRenderMaterial(manager, finder.find());
