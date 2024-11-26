@@ -5,6 +5,9 @@ license = "MIT"
 [[mixins]]
 config = "krender_engine_api.xplat.mixins.json"
 
+[[mixins]]
+config = "krender_engine_api.neoforge.mixins.json"
+
 [[mods]]
 modId = "${mod_id}"
 version = "${version}"

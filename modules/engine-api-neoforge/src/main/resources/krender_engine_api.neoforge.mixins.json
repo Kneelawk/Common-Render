@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "package": "com.kneelawk.krender.engine.neoforge.impl.mixin.impl",
+  "compatibilityLevel": "JAVA_21",
+  "minVersion": "0.8",
+  "refmap": "${refmap}",
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "client": [
+    "Accessor_SimpleBakedModel",
+    "Mixin_SimpleBakedModel"
+  ],
+  "mixins": [ ]
+}
