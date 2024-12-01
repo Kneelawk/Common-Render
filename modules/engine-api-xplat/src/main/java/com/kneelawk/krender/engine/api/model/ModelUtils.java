@@ -8,6 +8,7 @@ import net.minecraft.client.renderer.block.model.ItemTransform;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.resources.model.BakedModel;
 
+import com.kneelawk.krender.engine.api.KRenderer;
 import com.kneelawk.krender.engine.base.model.BakedModelCoreProvider;
 
 /**
@@ -29,7 +30,13 @@ public final class ModelUtils {
             return provider.krender$getCore();
         }
 
-        // TODO: maybe do backend checks? I.e. maybe a backend will know specific things about converting models
+        for (KRenderer renderer : KRenderer.getByPriority()) {
+            BakedModelCore<?> core = renderer.bakedModelUnwrapper().unwrap(model);
+            if (core != null) {
+                return core;
+            }
+        }
+
         return null;
     }
 

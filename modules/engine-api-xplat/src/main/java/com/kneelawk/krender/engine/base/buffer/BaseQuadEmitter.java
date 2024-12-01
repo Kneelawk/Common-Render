@@ -10,6 +10,7 @@ import org.joml.Vector3f;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
@@ -18,6 +19,7 @@ import net.minecraft.core.Vec3i;
 import com.kneelawk.krender.engine.api.buffer.QuadEmitter;
 import com.kneelawk.krender.engine.api.buffer.QuadView;
 import com.kneelawk.krender.engine.api.buffer.VertexEmitter;
+import com.kneelawk.krender.engine.api.material.MaterialFinder;
 import com.kneelawk.krender.engine.api.material.RenderMaterial;
 import com.kneelawk.krender.engine.api.util.ColorUtil;
 import com.kneelawk.krender.engine.base.BaseKRendererApi;
@@ -375,11 +377,19 @@ public abstract class BaseQuadEmitter extends BaseQuadView implements QuadEmitte
         setNominalFace(quad.getDirection());
         setColorIndex(quad.getTintIndex());
 
+        // pick up shading from quad
+        MaterialFinder finder = renderer.materialManager().materialFinder().copyFrom(material);
+
         if (!quad.isShade()) {
-            material = renderer.materialManager().materialFinder().copyFrom(material).setDiffuseDisabled(true).find();
+            finder.setDiffuseDisabled(true);
         }
 
-        setMaterial(material);
+        if (getLightmap(0) == LightTexture.FULL_BRIGHT && getLightmap(1) == LightTexture.FULL_BRIGHT &&
+            getLightmap(2) == LightTexture.FULL_BRIGHT && getLightmap(3) == LightTexture.FULL_BRIGHT) {
+            finder.setEmissive(true);
+        }
+
+        setMaterial(finder.find());
         setTag(0);
 
         return this;

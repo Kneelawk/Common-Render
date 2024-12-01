@@ -126,4 +126,13 @@ public class BackendManager {
             backendLock.readLock().unlock();
         }
     }
+
+    public static List<KRenderer> getByPriority() {
+        backendLock.readLock().lock();
+        try {
+            return renderersByPriority;
+        } finally {
+            backendLock.readLock().unlock();
+        }
+    }
 }
