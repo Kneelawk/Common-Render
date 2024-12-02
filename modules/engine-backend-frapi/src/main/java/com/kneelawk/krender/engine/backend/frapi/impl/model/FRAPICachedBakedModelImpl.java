@@ -29,6 +29,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
 
+import com.kneelawk.krender.engine.api.data.DataHolder;
 import com.kneelawk.krender.engine.api.model.BakedModelCore;
 import com.kneelawk.krender.engine.api.model.ModelBlockContext;
 import com.kneelawk.krender.engine.api.model.ModelItemContext;
@@ -106,7 +107,9 @@ public class FRAPICachedBakedModelImpl implements BakedModel, BakedModelCoreProv
     @Override
     public void emitBlockQuads(BlockAndTintGetter blockView, BlockState state, BlockPos pos,
                                Supplier<RandomSource> randomSupplier, RenderContext context) {
-        Object key = core.getBlockKey(new ModelBlockContext(blockView, pos, state, randomSupplier));
+        DataHolder data =
+            Objects.requireNonNullElse((DataHolder) blockView.getBlockEntityRenderData(pos), DataHolder.empty());
+        Object key = core.getBlockKey(new ModelBlockContext(blockView, pos, state, randomSupplier, data));
         try {
             Mesh mesh = meshCache.get(new ModelKeyHolder(key));
             mesh.outputTo(context.getEmitter());

@@ -16,7 +16,9 @@
   "icon": "assets/${mod_id}/icon.png",
   "environment": "client",
   "entrypoints": { },
-  "mixins": [ ],
+  "mixins": [
+    "krender_engine_backend_frapi.mixins.json"
+  ],
   "depends": {
     "fabricloader": ">=0.15.0",
     "fabric-api": "*",

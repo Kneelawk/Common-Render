@@ -7,6 +7,9 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
 
+import com.kneelawk.krender.engine.api.data.DataHolder;
+import com.kneelawk.krender.engine.api.data.DataProviderBlockEntity;
+
 /**
  * Context for use when rendering blocks.
  * <p>
@@ -16,7 +19,9 @@ import net.minecraft.world.level.block.state.BlockState;
  * @param pos    The position of the block being rendered.
  * @param state  The state of the block being rendered.
  * @param random The random for the given block state and position.
+ * @param data   The holder with data from an associated {@link DataProviderBlockEntity} if present.
+ * @see DataProviderBlockEntity#getData()
  */
 public record ModelBlockContext(BlockAndTintGetter level, BlockPos pos, BlockState state,
-                                Supplier<RandomSource> random) {
+                                Supplier<RandomSource> random, DataHolder data) {
 }

@@ -1,6 +1,7 @@
 package com.kneelawk.krender.engine.backend.frapi.impl.model;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 import org.jetbrains.annotations.NotNull;
@@ -20,6 +21,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
 
+import com.kneelawk.krender.engine.api.data.DataHolder;
 import com.kneelawk.krender.engine.api.model.BakedModelCore;
 import com.kneelawk.krender.engine.api.model.ModelBlockContext;
 import com.kneelawk.krender.engine.api.model.ModelItemContext;
@@ -84,7 +86,9 @@ public class FRAPIBakedModelImpl implements BakedModel, BakedModelCoreProvider {
     @SuppressWarnings("unchecked")
     public void emitBlockQuads(BlockAndTintGetter blockView, BlockState state, BlockPos pos,
                                Supplier<RandomSource> randomSupplier, RenderContext context) {
-        Object key = core.getBlockKey(new ModelBlockContext(blockView, pos, state, randomSupplier));
+        DataHolder data =
+            Objects.requireNonNullElse((DataHolder) blockView.getBlockEntityRenderData(pos), DataHolder.empty());
+        Object key = core.getBlockKey(new ModelBlockContext(blockView, pos, state, randomSupplier, data));
         ((BakedModelCore<Object>) core).renderBlock(new FRAPIQuadEmitter(context.getEmitter()), key);
     }
 

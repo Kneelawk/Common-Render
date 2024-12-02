@@ -1,6 +1,7 @@
 package com.kneelawk.krender.engine.backend.neoforge.impl.model;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -30,11 +31,13 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
 
+import com.kneelawk.krender.engine.api.data.DataHolder;
 import com.kneelawk.krender.engine.api.model.BakedModelCore;
 import com.kneelawk.krender.engine.api.model.ModelBlockContext;
 import com.kneelawk.krender.engine.api.model.ModelItemContext;
 import com.kneelawk.krender.engine.backend.neoforge.impl.KRBNFLog;
 import com.kneelawk.krender.engine.base.model.BakedModelCoreProvider;
+import com.kneelawk.krender.engine.neoforge.api.model.ModelDataProperties;
 
 public class NFCachingBakedModelImpl implements BakedModel, BakedModelCoreProvider {
     private static final ThreadLocal<RandomSource> RANDOM_SOURCES = ThreadLocal.withInitial(RandomSource::create);
@@ -141,7 +144,7 @@ public class NFCachingBakedModelImpl implements BakedModel, BakedModelCoreProvid
         Object key = core.getBlockKey(new ModelBlockContext(level, pos, state, () -> {
             random.setSeed(seed);
             return random;
-        }));
+        }, Objects.requireNonNullElse(modelData.get(ModelDataProperties.DATA_HOLDER_MODEL_PROPERTY), DataHolder.empty())));
         return modelData.derive().with(ModelKeyHolder.PROPERTY, new ModelKeyHolder(key)).build();
     }
 
@@ -152,7 +155,6 @@ public class NFCachingBakedModelImpl implements BakedModel, BakedModelCoreProvid
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public ChunkRenderTypeSet getRenderTypes(BlockState state, RandomSource rand, ModelData data) {
         ModelKeyHolder holder = data.get(ModelKeyHolder.PROPERTY);
         if (holder == null) return ChunkRenderTypeSet.none();

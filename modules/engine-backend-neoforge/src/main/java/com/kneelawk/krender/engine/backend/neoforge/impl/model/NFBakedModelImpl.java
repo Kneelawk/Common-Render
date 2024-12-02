@@ -1,6 +1,7 @@
 package com.kneelawk.krender.engine.backend.neoforge.impl.model;
 
 import java.util.List;
+import java.util.Objects;
 
 import net.neoforged.neoforge.client.ChunkRenderTypeSet;
 import net.neoforged.neoforge.client.model.data.ModelData;
@@ -25,10 +26,12 @@ import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
 
 import com.kneelawk.krender.engine.api.buffer.QuadEmitter;
+import com.kneelawk.krender.engine.api.data.DataHolder;
 import com.kneelawk.krender.engine.api.model.BakedModelCore;
 import com.kneelawk.krender.engine.api.model.ModelBlockContext;
 import com.kneelawk.krender.engine.api.model.ModelItemContext;
 import com.kneelawk.krender.engine.base.model.BakedModelCoreProvider;
+import com.kneelawk.krender.engine.neoforge.api.model.ModelDataProperties;
 
 /**
  * Non-Caching implementation that calls {@link BakedModelCore#renderBlock(QuadEmitter, Object)} multiple times.
@@ -119,7 +122,7 @@ public class NFBakedModelImpl implements BakedModel, BakedModelCoreProvider {
         Object key = core.getBlockKey(new ModelBlockContext(level, pos, state, () -> {
             random.setSeed(seed);
             return random;
-        }));
+        }, Objects.requireNonNullElse(modelData.get(ModelDataProperties.DATA_HOLDER_MODEL_PROPERTY), DataHolder.empty())));
         return modelData.derive().with(ModelKeyHolder.PROPERTY, new ModelKeyHolder(key)).build();
     }
 
