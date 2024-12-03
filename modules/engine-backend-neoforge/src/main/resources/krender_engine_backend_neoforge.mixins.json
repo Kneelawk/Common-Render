@@ -1,6 +1,6 @@
 {
   "required": true,
-  "package": "com.kneelawk.krender.engine.backend.frapi.impl.mixin.impl",
+  "package": "com.kneelawk.krender.engine.backend.neoforge.impl.mixin.impl",
   "compatibilityLevel": "JAVA_21",
   "minVersion": "0.8",
   "refmap": "${refmap}",

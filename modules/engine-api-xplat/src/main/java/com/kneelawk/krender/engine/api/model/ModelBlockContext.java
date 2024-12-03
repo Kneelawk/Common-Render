@@ -15,13 +15,13 @@ import com.kneelawk.krender.engine.api.data.DataProviderBlockEntity;
  * <p>
  * The data contained may change, but changing or removing a constructor is considered an API-breaking change.
  *
- * @param level  The level access.
- * @param pos    The position of the block being rendered.
- * @param state  The state of the block being rendered.
- * @param random The random for the given block state and position.
- * @param data   The holder with data from an associated {@link DataProviderBlockEntity} if present.
- * @see DataProviderBlockEntity#getData()
+ * @param level            The level access.
+ * @param pos              The position of the block being rendered.
+ * @param state            The state of the block being rendered.
+ * @param random           The random for the given block state and position.
+ * @param renderDataHolder The holder with data from an associated {@link DataProviderBlockEntity} if present.
+ * @see DataProviderBlockEntity#getRenderDataHolder()
  */
 public record ModelBlockContext(BlockAndTintGetter level, BlockPos pos, BlockState state,
-                                Supplier<RandomSource> random, DataHolder data) {
+                                Supplier<RandomSource> random, DataHolder renderDataHolder) {
 }

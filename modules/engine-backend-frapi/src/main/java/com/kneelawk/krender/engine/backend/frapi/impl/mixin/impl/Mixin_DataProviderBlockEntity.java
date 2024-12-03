@@ -11,6 +11,6 @@ import com.kneelawk.krender.engine.api.data.DataProviderBlockEntity;
 public class Mixin_DataProviderBlockEntity implements RenderDataBlockEntity {
     @Override
     public @Nullable Object getRenderData() {
-        return ((DataProviderBlockEntity) (Object) this).getData();
+        return ((DataProviderBlockEntity) (Object) this).getRenderDataHolder();
     }
 }

@@ -8,7 +8,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import com.kneelawk.krender.engine.api.model.ModelBlockContext;
 
 /**
- * Abstract class extended by {@link net.minecraft.world.level.block.entity.BlockEntity}s that provide data to
+ * Abstract class extended by {@link BlockEntity}s that provide data to
  * {@link net.minecraft.client.resources.model.BakedModel}s.
  * <p>
  * Extending this class provides a platform independent way to provide data to block models. Otherwise, you will need
@@ -19,8 +19,11 @@ import com.kneelawk.krender.engine.api.model.ModelBlockContext;
  * <p>
  * On NeoForge, you must return a {@code ModelData} containing your {@link DataHolder} under the
  * {@code ModelDataProperties.DATA_HOLDER_MODEL_PROPERTY} property.
+ * <p>
+ * {@link DataProviderBlockEntity} is an abstract class instead of an interface because it needs to extend
+ * {@link BlockEntity} in order to be able to override the correct method on Fabric backends.
  *
- * @see ModelBlockContext#data()
+ * @see ModelBlockContext#renderDataHolder()
  */
 public abstract class DataProviderBlockEntity extends BlockEntity {
     /**
@@ -37,7 +40,7 @@ public abstract class DataProviderBlockEntity extends BlockEntity {
     /**
      * {@return the custom data from this block entity to be passed to its associated baked model}
      *
-     * @see ModelBlockContext#data()
+     * @see ModelBlockContext#renderDataHolder()
      */
-    public abstract DataHolder getData();
+    public abstract DataHolder getRenderDataHolder();
 }
