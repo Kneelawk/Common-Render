@@ -52,15 +52,37 @@ public class MatrixQuadTransform implements QuadTransform<MatrixQuadTransform.Op
             }
         }
 
+        if (context.sort()) output.sortVertices();
+
         output.emit();
     }
 
     /**
      * Options for the {@link MatrixQuadTransform}.
      *
-     * @param matrix      the matrix used the quad vertex positions and normals.
+     * @param matrix      the matrix used on the quad vertex positions and normals.
      * @param granularity the smallest value that each transformed position must be a multiple of. This helps
      *                    prevent rounding errors that can cause quads to not overlay properly.
+     * @param sort        whether to sort vertices after applying tranformations.
      */
-    public record Options(Matrix4f matrix, float granularity) {}
+    public record Options(Matrix4f matrix, float granularity, boolean sort) {
+        /**
+         * Create a new options with no sorting.
+         *
+         * @param matrix      the matrix used on the quad vertex positions and normals.
+         * @param granularity the smallest value that each transformed position must be a multiple of.
+         */
+        public Options(Matrix4f matrix, float granularity) {
+            this(matrix, granularity, false);
+        }
+
+        /**
+         * Create a new options with no granularity or sorting.
+         *
+         * @param matrix the matrix used on the quad vertex positions and normals.
+         */
+        public Options(Matrix4f matrix) {
+            this(matrix, 0f);
+        }
+    }
 }

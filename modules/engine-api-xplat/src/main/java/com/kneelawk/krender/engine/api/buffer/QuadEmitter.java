@@ -14,8 +14,10 @@ import org.joml.Vector3fc;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
 
 import com.kneelawk.krender.engine.api.material.RenderMaterial;
+import com.kneelawk.krender.engine.api.util.DirectionUtils;
 
 /**
  * Per-quad Fabric Render API style model emitter.
@@ -535,6 +537,56 @@ public interface QuadEmitter extends QuadView, QuadSink {
      * @return this quad emitter.
      */
     QuadEmitter fromVanilla(BakedQuad quad, RenderMaterial material, @Nullable Direction cullFace);
+
+    /**
+     * Sorts this quad's vertices around the given normal vector, starting from the binormal vector.
+     *
+     * @param normalX   the x part of the quad's normal vector to sort vertices around.
+     * @param normalY   the y part of the quad's normal vector to sort vertices around.
+     * @param normalZ   the z part of the quad's normal vector to sort vertices around.
+     * @param binormalX the x part of the quad's binormal vector to sort vertices starting from.
+     * @param binormalY the y part of the quad's binormal vector to sort vertices starting from.
+     * @param binormalZ the z part of the quad's binormal vector to sort vertices starting from.
+     * @return this quad emitter.
+     */
+    QuadEmitter sortVertices(float normalX, float normalY, float normalZ, float binormalX, float binormalY,
+                             float binormalZ);
+
+    /**
+     * Sorts this quad's vertices around the given normal vector, starting from the binormal vector.
+     *
+     * @param normal   the quad's normal vector to sort vertices around.
+     * @param binormal the quad's binormal vector to sort vertices starting from.
+     * @return this quad emitter.
+     */
+    default QuadEmitter sortVertices(Vector3f normal, Vector3f binormal) {
+        return sortVertices(normal.x, normal.y, normal.z, binormal.x, binormal.y, binormal.z);
+    }
+
+    /**
+     * Sorts this quad's vertices around the given normal vector, starting from the binormal vector.
+     *
+     * @param normal   the quad's normal vector to sort vertices around.
+     * @param binormal the quad's binormal vector to sort vertices starting from.
+     * @return this quad emitter.
+     */
+    default QuadEmitter sortVertices(Vector3fc normal, Vector3fc binormal) {
+        return sortVertices(normal.x(), normal.y(), normal.z(), binormal.x(), binormal.y(), binormal.z());
+    }
+
+    /**
+     * Sorts this quad's vertices around its {@link #getLightFace()}.
+     *
+     * @return this quad emitter.
+     */
+    default QuadEmitter sortVertices() {
+        Direction normal = getLightFace();
+        Direction binormal = DirectionUtils.getFaceSide(normal, Direction.NORTH);
+        Vec3i normalVec = normal.getNormal();
+        Vec3i binormalVec = binormal.getNormal();
+        return sortVertices(normalVec.getX(), normalVec.getY(), normalVec.getZ(), binormalVec.getX(),
+            binormalVec.getY(), binormalVec.getZ());
+    }
 
     @Override
     default QuadEmitter asQuadEmitter() {

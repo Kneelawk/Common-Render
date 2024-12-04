@@ -17,16 +17,16 @@ import com.kneelawk.krender.engine.api.material.BlendMode;
 import com.kneelawk.krender.engine.api.material.MaterialFinder;
 import com.kneelawk.krender.engine.api.material.MaterialManager;
 import com.kneelawk.krender.engine.api.material.RenderMaterial;
-import com.kneelawk.krender.engine.api.util.ColorUtil;
+import com.kneelawk.krender.engine.api.util.ColorUtils;
 
 public record MaterialOverride(Optional<BlendMode> blendMode, Optional<Boolean> colorIndexDisabled,
                                Optional<Boolean> emissive, Optional<Boolean> diffuseDisabled,
                                Optional<TriState> ambientOcclusionMode, OptionalInt colorFactor) {
     private static final Codec<Integer> COLOR_CODEC = Codec.either(Codec.INT, Codec.floatRange(0.0f, 1.0f).listOf()
             .comapFlatMap(list -> Util.fixedSize(list, 4)
-                    .map(listx -> ColorUtil.toArgb(listx.get(0), listx.get(1), listx.get(2), listx.get(3))),
-                argb -> List.of(ColorUtil.redFloat(argb), ColorUtil.greenFloat(argb), ColorUtil.blueFloat(argb),
-                    ColorUtil.alphaFloat(argb))))
+                    .map(listx -> ColorUtils.toArgb(listx.get(0), listx.get(1), listx.get(2), listx.get(3))),
+                argb -> List.of(ColorUtils.redFloat(argb), ColorUtils.greenFloat(argb), ColorUtils.blueFloat(argb),
+                    ColorUtils.alphaFloat(argb))))
         .xmap(either -> either.map(Function.identity(), Function.identity()), Either::right);
 
     public static final Codec<MaterialOverride> CODEC = RecordCodecBuilder.create(instance -> instance.group(

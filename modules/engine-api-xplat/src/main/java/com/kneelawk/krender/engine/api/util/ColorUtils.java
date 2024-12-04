@@ -5,8 +5,8 @@ import java.nio.ByteOrder;
 /**
  * KRender color utilities.
  */
-public final class ColorUtil {
-    private ColorUtil() {}
+public final class ColorUtils {
+    private ColorUtils() {}
 
     private static final boolean BIG_ENDIAN = ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN;
 

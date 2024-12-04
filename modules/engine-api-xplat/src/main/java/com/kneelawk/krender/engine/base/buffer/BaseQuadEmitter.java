@@ -21,16 +21,16 @@ import com.kneelawk.krender.engine.api.buffer.QuadView;
 import com.kneelawk.krender.engine.api.buffer.VertexEmitter;
 import com.kneelawk.krender.engine.api.material.MaterialFinder;
 import com.kneelawk.krender.engine.api.material.RenderMaterial;
-import com.kneelawk.krender.engine.api.util.ColorUtil;
+import com.kneelawk.krender.engine.api.util.ColorUtils;
 import com.kneelawk.krender.engine.base.BaseKRendererApi;
 import com.kneelawk.krender.engine.base.material.BaseMaterialViewApi;
 
-import static com.kneelawk.krender.engine.api.util.ColorUtil.blue;
-import static com.kneelawk.krender.engine.api.util.ColorUtil.green;
-import static com.kneelawk.krender.engine.api.util.ColorUtil.red;
-import static com.kneelawk.krender.engine.api.util.ColorUtil.scale;
-import static com.kneelawk.krender.engine.api.util.ColorUtil.toArgb;
-import static com.kneelawk.krender.engine.api.util.ColorUtil.toFixed;
+import static com.kneelawk.krender.engine.api.util.ColorUtils.blue;
+import static com.kneelawk.krender.engine.api.util.ColorUtils.green;
+import static com.kneelawk.krender.engine.api.util.ColorUtils.red;
+import static com.kneelawk.krender.engine.api.util.ColorUtils.scale;
+import static com.kneelawk.krender.engine.api.util.ColorUtils.toArgb;
+import static com.kneelawk.krender.engine.api.util.ColorUtils.toFixed;
 import static com.kneelawk.krender.engine.base.buffer.BaseQuadFormat.EMPTY;
 import static com.kneelawk.krender.engine.base.buffer.BaseQuadFormat.HEADER_BITS;
 import static com.kneelawk.krender.engine.base.buffer.BaseQuadFormat.HEADER_COLOR_INDEX;
@@ -64,6 +64,11 @@ public abstract class BaseQuadEmitter extends BaseQuadView implements QuadEmitte
      * The default material that is applied for every new quad.
      */
     protected RenderMaterial defaultMaterial = renderer.materialManager().defaultMaterial();
+
+    private final Vector3f sortNormal = new Vector3f();
+    private final Vector3f sortTangent = new Vector3f();
+    private final Vector3f sortBinormal = new Vector3f();
+    private final int[] sortData = new int[TOTAL_STRIDE];
 
     /**
      * Creates a new base quad emitter associated with the given KRenderer.
@@ -364,7 +369,7 @@ public abstract class BaseQuadEmitter extends BaseQuadView implements QuadEmitte
 
         for (int i = 0; i < 4; i++) {
             final int index = baseIndex + HEADER_STRIDE + i * VERTEX_STRIDE + VERTEX_COLOR;
-            data[index] = ColorUtil.fromNative(data[index]);
+            data[index] = ColorUtils.fromNative(data[index]);
         }
 
         return this;
@@ -393,6 +398,67 @@ public abstract class BaseQuadEmitter extends BaseQuadView implements QuadEmitte
         setTag(0);
 
         return this;
+    }
+
+    @Override
+    public QuadEmitter sortVertices(float normalX, float normalY, float normalZ, float binormalX, float binormalY,
+                                    float binormalZ) {
+        Vector3f normal = sortNormal;
+        Vector3f tangent = sortTangent;
+        Vector3f binormal = sortBinormal;
+        int[] indices = {0, 1, 2, 3};
+        float[] angles = new float[4];
+
+        // these vectors don't seem to need to be normalized
+        normal.set(normalX, normalY, normalZ);
+        binormal.set(binormalX, binormalY, binormalZ);
+
+        // get tangent
+        normal.cross(binormal, tangent);
+        if (tangent.lengthSquared() < EPSILON)
+            throw new IllegalArgumentException("Normal and binormal vectors are parallel or zero");
+
+        // get vector angles from center
+        float cx = (getX(0) + getX(1) + getX(2) + getX(3)) / 4f;
+        float cy = (getY(0) + getY(1) + getY(2) + getY(3)) / 4f;
+        float cz = (getZ(0) + getZ(1) + getZ(2) + getZ(3)) / 4f;
+        for (int i = 0; i < 4; i++) {
+            float dx = getX(i) - cx;
+            float dy = getY(i) - cy;
+            float dz = getZ(i) - cz;
+            // get angle starting from binormal axis, moving toward tangent axis, and going on around
+            angles[i] = (float) Math.atan2(tangent.dot(dx, dy, dz), binormal.dot(dx, dy, dz));
+            if (angles[i] < 0) angles[i] += (float) Math.PI * 2f;
+        }
+
+        // sort the indices by their angles
+        if (angles[indices[0]] > angles[indices[2]]) swap(indices, 0, 2);
+        if (angles[indices[1]] > angles[indices[3]]) swap(indices, 1, 3);
+        if (angles[indices[0]] > angles[indices[1]]) swap(indices, 0, 1);
+        if (angles[indices[2]] > angles[indices[3]]) swap(indices, 2, 3);
+        if (angles[indices[1]] > angles[indices[2]]) swap(indices, 1, 2);
+
+        // move vertices
+        System.arraycopy(data, baseIndex, sortData, 0, TOTAL_STRIDE);
+        int header = data[baseIndex + HEADER_BITS];
+        for (int i = 0; i < 4; i++) {
+            System.arraycopy(sortData, HEADER_STRIDE + indices[i] * VERTEX_STRIDE, data,
+                baseIndex + HEADER_STRIDE + i * VERTEX_STRIDE, VERTEX_STRIDE);
+            header = BaseQuadFormat.setNormalPresent(header, i,
+                BaseQuadFormat.isNormalPresent(sortData[HEADER_BITS], indices[i]));
+        }
+        data[baseIndex + HEADER_BITS] = header;
+
+        // mark geometry as invalid
+        geometryInvalid = true;
+
+        return this;
+    }
+
+    private static void swap(int[] a, int i1, int i2) {
+        int s = a[i1];
+        a[i1] = a[i2];
+        a[i2] = s;
     }
 
     @Override
@@ -532,7 +598,7 @@ public abstract class BaseQuadEmitter extends BaseQuadView implements QuadEmitte
 
             // transform color
             if (respectExistingColors) {
-                final int color = ColorUtil.fromNative(data[index + VERTEX_COLOR]);
+                final int color = ColorUtils.fromNative(data[index + VERTEX_COLOR]);
                 data[index + VERTEX_COLOR] = toArgb(scale(red(color), toFixed(brightness[i] * red)),
                     scale(green(color), toFixed(brightness[i] * green)),
                     scale(blue(color), toFixed(brightness[i] * blue)), a);

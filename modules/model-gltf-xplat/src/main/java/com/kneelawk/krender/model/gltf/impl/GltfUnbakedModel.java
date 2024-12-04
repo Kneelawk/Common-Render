@@ -32,7 +32,7 @@ import com.kneelawk.krender.engine.api.material.MaterialManager;
 import com.kneelawk.krender.engine.api.material.RenderMaterial;
 import com.kneelawk.krender.engine.api.mesh.MeshBuilder;
 import com.kneelawk.krender.engine.api.model.SimpleModelCore;
-import com.kneelawk.krender.engine.api.util.ColorUtil;
+import com.kneelawk.krender.engine.api.util.ColorUtils;
 import com.kneelawk.krender.engine.api.util.transform.MatrixQuadTransform;
 import com.kneelawk.krender.model.gltf.impl.format.GltfAccessor;
 import com.kneelawk.krender.model.gltf.impl.format.GltfAccessorComponentType;
@@ -214,7 +214,7 @@ public class GltfUnbakedModel implements UnbakedModel {
                     texCoordIndex = ref.texCoord();
                 }
                 float[] baseColorFactorF = mr.baseColorFactor();
-                colorFactor = ColorUtil.toArgb(baseColorFactorF[0], baseColorFactorF[1], baseColorFactorF[2],
+                colorFactor = ColorUtils.toArgb(baseColorFactorF[0], baseColorFactorF[1], baseColorFactorF[2],
                     baseColorFactorF[3]);
             }
 

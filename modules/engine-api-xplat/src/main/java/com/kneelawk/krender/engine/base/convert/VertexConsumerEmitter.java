@@ -11,10 +11,10 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import com.kneelawk.krender.engine.api.buffer.QuadView;
 import com.kneelawk.krender.engine.api.material.RenderMaterial;
 
-import static com.kneelawk.krender.engine.api.util.ColorUtil.alpha;
-import static com.kneelawk.krender.engine.api.util.ColorUtil.blue;
-import static com.kneelawk.krender.engine.api.util.ColorUtil.green;
-import static com.kneelawk.krender.engine.api.util.ColorUtil.red;
+import static com.kneelawk.krender.engine.api.util.ColorUtils.alpha;
+import static com.kneelawk.krender.engine.api.util.ColorUtils.blue;
+import static com.kneelawk.krender.engine.api.util.ColorUtils.green;
+import static com.kneelawk.krender.engine.api.util.ColorUtils.red;
 
 /**
  * Emits quads to vertex consumers.

@@ -31,7 +31,7 @@ import com.kneelawk.krender.engine.api.material.MaterialManager;
 import com.kneelawk.krender.engine.api.material.RenderMaterial;
 import com.kneelawk.krender.engine.api.mesh.MeshBuilder;
 import com.kneelawk.krender.engine.api.model.SimpleModelCore;
-import com.kneelawk.krender.engine.api.util.ColorUtil;
+import com.kneelawk.krender.engine.api.util.ColorUtils;
 import com.kneelawk.krender.engine.api.util.transform.MatrixQuadTransform;
 import com.kneelawk.krender.model.obj.impl.format.MtlMaterial;
 import com.kneelawk.krender.model.obj.impl.format.ObjFace;
@@ -106,7 +106,7 @@ public class ObjUnbakedModel implements UnbakedModel {
                 if (override.colorFactor().isPresent()) {
                     color = override.colorFactor().getAsInt();
                 } else if (material.diffuseColor().length == 3) {
-                    color = ColorUtil.toArgb(material.diffuseColor()[0], material.diffuseColor()[1],
+                    color = ColorUtils.toArgb(material.diffuseColor()[0], material.diffuseColor()[1],
                         material.diffuseColor()[2], material.dissolve());
                 } else {
                     color = -1;

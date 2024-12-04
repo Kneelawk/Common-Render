@@ -14,7 +14,7 @@ import com.kneelawk.krender.engine.api.KRenderer;
 import com.kneelawk.krender.engine.api.buffer.QuadEmitter;
 import com.kneelawk.krender.engine.api.buffer.QuadView;
 import com.kneelawk.krender.engine.api.material.RenderMaterial;
-import com.kneelawk.krender.engine.api.util.ColorUtil;
+import com.kneelawk.krender.engine.api.util.ColorUtils;
 import com.kneelawk.krender.engine.base.BaseKRendererApi;
 
 import static com.kneelawk.krender.engine.base.buffer.BaseQuadFormat.HEADER_BITS;
@@ -291,6 +291,7 @@ public class BaseQuadView implements QuadView {
 
     @Override
     public Direction getLightFace() {
+        computeGeometry();
         return BaseQuadFormat.getLightFace(data[baseIndex + HEADER_BITS]);
     }
 
@@ -357,7 +358,7 @@ public class BaseQuadView implements QuadView {
 
         for (int i = 0; i < 4; i++) {
             // convert colors 
-            target[i * VERTEX_STRIDE + VERTEX_COLOR] = ColorUtil.toNative(target[i * VERTEX_STRIDE + VERTEX_COLOR]);
+            target[i * VERTEX_STRIDE + VERTEX_COLOR] = ColorUtils.toNative(target[i * VERTEX_STRIDE + VERTEX_COLOR]);
 
             // handle emissives
             if (material.isEmissive()) {
