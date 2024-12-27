@@ -8,9 +8,10 @@
     "defaultRequire": 1
   },
   "client": [
-    "BlockStateModelLoaderMixin",
-    "ModelBakeryMixin",
-    "ModelManagerMixin"
+    "Mixin_ModelBakery",
+    "Mixin_ModelBakeryBakingResult",
+    "Mixin_ModelDiscovery",
+    "Mixin_ModelManager"
   ],
   "mixins": [ ]
 }

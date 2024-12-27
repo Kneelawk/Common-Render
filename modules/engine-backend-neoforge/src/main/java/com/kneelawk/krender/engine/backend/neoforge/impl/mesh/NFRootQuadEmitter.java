@@ -18,7 +18,7 @@ public abstract class NFRootQuadEmitter extends RootQuadEmitter {
         int[] quad = new int[VANILLA_QUAD_STRIDE];
         final RenderMaterial material = getMaterial();
 
-        toVanilla(quad, 0, material);
+        toVanilla(quad, 0);
         int tintIndex = material.isColorIndexDisabled() ? -1 : getColorIndex();
         boolean shade = !material.isDiffuseDisabled();
 

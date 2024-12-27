@@ -5,7 +5,6 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
-import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
@@ -331,7 +330,13 @@ public class BaseQuadView implements QuadView {
 
     @Override
     public void toVanilla(int[] target, int targetIndex) {
-        toVanilla(target, targetIndex, getMaterial());
+        // we use roughly the same vertex format vanilla uses
+        System.arraycopy(data, baseIndex + HEADER_STRIDE, target, targetIndex, VANILLA_QUAD_STRIDE);
+
+        for (int i = 0; i < 4; i++) {
+            // convert colors 
+            target[i * VERTEX_STRIDE + VERTEX_COLOR] = ColorUtils.toNative(target[i * VERTEX_STRIDE + VERTEX_COLOR]);
+        }
     }
 
     @Override
@@ -339,32 +344,11 @@ public class BaseQuadView implements QuadView {
         int[] quad = new int[VANILLA_QUAD_STRIDE];
         final RenderMaterial material = getMaterial();
 
-        toVanilla(quad, 0, material);
+        toVanilla(quad, 0);
         int tintIndex = material.isColorIndexDisabled() ? -1 : getColorIndex();
         boolean shade = !material.isDiffuseDisabled();
-        return new BakedQuad(quad, tintIndex, getLightFace(), sprite, shade);
-    }
-
-    /**
-     * Converts this quad to vanilla quad data, but using the given render material.
-     *
-     * @param target      the array to copy vanilla vertex data to.
-     * @param targetIndex the index within the array to start copying to.
-     * @param material    the material to use for emissive-ness calculations.
-     */
-    protected void toVanilla(int[] target, int targetIndex, RenderMaterial material) {
-        // we use roughly the same vertex format vanilla uses
-        System.arraycopy(data, baseIndex + HEADER_STRIDE, target, targetIndex, VANILLA_QUAD_STRIDE);
-
-        for (int i = 0; i < 4; i++) {
-            // convert colors 
-            target[i * VERTEX_STRIDE + VERTEX_COLOR] = ColorUtils.toNative(target[i * VERTEX_STRIDE + VERTEX_COLOR]);
-
-            // handle emissives
-            if (material.isEmissive()) {
-                target[i * VERTEX_STRIDE + VERTEX_LIGHTMAP] = LightTexture.FULL_BRIGHT;
-            }
-        }
+        int emission = material.isEmissive() ? 15 : 0;
+        return new BakedQuad(quad, tintIndex, getLightFace(), sprite, shade, emission);
     }
 
     @Override

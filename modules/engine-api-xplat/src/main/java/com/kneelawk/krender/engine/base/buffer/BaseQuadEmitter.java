@@ -576,7 +576,7 @@ public abstract class BaseQuadEmitter extends BaseQuadView implements QuadEmitte
         final int a = toFixed(alpha);
 
         // putBulkData ignores vertex normals
-        final Vec3i n = quad.getDirection().getNormal();
+        final Vec3i n = quad.getDirection().getUnitVec3i();
         final float nx = n.getX() * normal.m00() + n.getY() * normal.m01() + n.getZ() * normal.m02();
         final float ny = n.getX() * normal.m10() + n.getY() * normal.m11() + n.getZ() * normal.m12();
         final float nz = n.getX() * normal.m20() + n.getY() * normal.m21() + n.getZ() * normal.m22();

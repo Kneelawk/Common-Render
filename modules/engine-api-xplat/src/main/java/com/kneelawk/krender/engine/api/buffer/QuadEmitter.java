@@ -582,8 +582,8 @@ public interface QuadEmitter extends QuadView, QuadSink {
     default QuadEmitter sortVertices() {
         Direction normal = getLightFace();
         Direction binormal = DirectionUtils.getFaceSide(normal, Direction.NORTH);
-        Vec3i normalVec = normal.getNormal();
-        Vec3i binormalVec = binormal.getNormal();
+        Vec3i normalVec = normal.getUnitVec3i();
+        Vec3i binormalVec = binormal.getUnitVec3i();
         return sortVertices(normalVec.getX(), normalVec.getY(), normalVec.getZ(), binormalVec.getX(),
             binormalVec.getY(), binormalVec.getZ());
     }

@@ -12,13 +12,13 @@ import net.minecraft.server.packs.resources.Resource;
 import com.kneelawk.krender.model.gltf.impl.format.metadata.GltfMetadata;
 import com.kneelawk.krender.model.gltf.impl.mixin.impl.Accessor_SpriteSources;
 import com.kneelawk.krender.model.guard.api.ModelGuards;
-import com.kneelawk.krender.model.loading.api.ModelBakeryPlugin;
+import com.kneelawk.krender.model.loading.api.ModelManagerPlugin;
 
 import static com.kneelawk.krender.model.gltf.impl.KGltfConstants.prl;
 
 public class KGltf {
     public static void init() {
-        ModelBakeryPlugin.registerPreparable((resourceManager, prepareExecutor) -> CompletableFuture.supplyAsync(() -> {
+        ModelManagerPlugin.registerPreparable((resourceManager, prepareExecutor) -> CompletableFuture.supplyAsync(() -> {
             Map<ResourceLocation, GltfUnbakedModel> unbakedModels = new Object2ObjectLinkedOpenHashMap<>();
 
             ModelGuards guards = ModelGuards.load(resourceManager);
@@ -53,7 +53,7 @@ public class KGltf {
 
             return unbakedModels;
         }, prepareExecutor), (resource, ctx) -> {
-            ctx.addLowLevelModels(resource);
+            ctx.addReferenceableModels(resource);
         });
     }
 

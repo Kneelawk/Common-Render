@@ -3,7 +3,6 @@ package com.kneelawk.krender.engine.impl;
 import java.util.concurrent.atomic.AtomicReference;
 
 import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
@@ -40,11 +39,6 @@ public class VanillaAdapterModelCore implements StaticBakedModelCore {
     }
 
     @Override
-    public boolean isCustomRenderer() {
-        return model.isCustomRenderer();
-    }
-
-    @Override
     public TextureAtlasSprite getParticleIcon() {
         return model.getParticleIcon();
     }
@@ -52,11 +46,6 @@ public class VanillaAdapterModelCore implements StaticBakedModelCore {
     @Override
     public ItemTransforms getTransforms() {
         return model.getTransforms();
-    }
-
-    @Override
-    public ItemOverrides getOverrides() {
-        return model.getOverrides();
     }
 
     @Override

@@ -2,7 +2,6 @@ package com.kneelawk.krender.engine.api.model;
 
 import org.jetbrains.annotations.UnknownNullability;
 
-import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
@@ -33,14 +32,6 @@ public interface BakedModelCore<BK> {
     boolean usesBlockLight();
 
     /**
-     * {@return whether this model is hardcoded ({@code true}) or resource-based ({@code false})}
-     * <p>
-     * Note: returning {@code true} from this method may prevent {@link #renderItem(QuadEmitter, ModelItemContext)}
-     * from being called on some platforms.
-     */
-    boolean isCustomRenderer();
-
-    /**
      * {@return the particle sprite for this model}
      */
     TextureAtlasSprite getParticleIcon();
@@ -49,11 +40,6 @@ public interface BakedModelCore<BK> {
      * {@return the rotation of this model as an item}
      */
     ItemTransforms getTransforms();
-
-    /**
-     * {@return the baked model item overrides}
-     */
-    ItemOverrides getOverrides();
 
     /**
      * Gets the model key used to pass information to {@link #renderBlock(QuadEmitter, Object)}.

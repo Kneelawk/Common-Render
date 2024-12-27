@@ -131,7 +131,7 @@ public final class NormalHelper {
         // check nominal face shortcut
         final Direction nominalFace = quad.getNominalFace();
         if (nominalFace != null && GeometryHelper.isParallel(nominalFace, quad)) {
-            Vec3i normal = nominalFace.getNormal();
+            Vec3i normal = nominalFace.getUnitVec3i();
             output.set(normal.getX(), normal.getY(), normal.getZ());
             return;
         }

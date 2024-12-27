@@ -36,11 +36,6 @@ public class FRAPIUnwrappedModel implements BakedModelCore<FRAPIUnwrappedModel.Q
     }
 
     @Override
-    public boolean isCustomRenderer() {
-        return bakedModel.isCustomRenderer();
-    }
-
-    @Override
     public TextureAtlasSprite getParticleIcon() {
         return bakedModel.getParticleIcon();
     }
@@ -48,11 +43,6 @@ public class FRAPIUnwrappedModel implements BakedModelCore<FRAPIUnwrappedModel.Q
     @Override
     public ItemTransforms getTransforms() {
         return bakedModel.getTransforms();
-    }
-
-    @Override
-    public ItemOverrides getOverrides() {
-        return bakedModel.getOverrides();
     }
 
     @Override

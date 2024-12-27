@@ -19,6 +19,7 @@
   "mixins": [
     "${mod_id}.mixins.json"
   ],
+  "accessWidener": "krender_model_loading.accesswidener",
   "depends": {
     "fabricloader": ">=0.15.0",
     "fabric-api": "*",

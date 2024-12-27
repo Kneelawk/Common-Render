@@ -13,3 +13,7 @@ submodule {
 kpublish {
     createPublication()
 }
+
+loom {
+    accessWidenerPath.set(file("src/main/resources/krender_model_loading.accesswidener"))
+}

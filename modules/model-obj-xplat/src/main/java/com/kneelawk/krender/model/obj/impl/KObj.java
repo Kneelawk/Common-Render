@@ -10,13 +10,13 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 
 import com.kneelawk.krender.model.guard.api.ModelGuards;
-import com.kneelawk.krender.model.loading.api.ModelBakeryPlugin;
+import com.kneelawk.krender.model.loading.api.ModelManagerPlugin;
 import com.kneelawk.krender.model.obj.impl.format.ObjFile;
 import com.kneelawk.krender.model.obj.impl.format.metadata.ObjMetadata;
 
 public class KObj {
     public static void register() {
-        ModelBakeryPlugin.registerPreparable((resourceManager, prepareExecutor) -> CompletableFuture.supplyAsync(() -> {
+        ModelManagerPlugin.registerPreparable((resourceManager, prepareExecutor) -> CompletableFuture.supplyAsync(() -> {
             Map<ResourceLocation, ObjUnbakedModel> unbakedModels = new Object2ObjectLinkedOpenHashMap<>();
 
             ModelGuards guards = ModelGuards.load(resourceManager);
@@ -37,7 +37,7 @@ public class KObj {
 
             return unbakedModels;
         }, prepareExecutor), (resource, ctx) -> {
-            ctx.addLowLevelModels(resource);
+            ctx.addReferenceableModels(resource);
         });
     }
 }

@@ -1,0 +1,7 @@
+accessWidener v2 named
+
+accessible class net/minecraft/client/resources/model/ModelBakery$ModelBakerImpl
+accessible method net/minecraft/client/resources/model/ModelBakery$ModelBakerImpl <init> (Lnet/minecraft/client/resources/model/ModelBakery;Lnet/minecraft/client/resources/model/ModelBakery$TextureGetter;Lnet/minecraft/client/resources/model/ModelDebugName;)V
+
+accessible class net/minecraft/client/resources/model/ModelDiscovery$ResolverImpl
+accessible method net/minecraft/client/resources/model/ModelDiscovery$ResolverImpl <init> (Lnet/minecraft/client/resources/model/ModelDiscovery;)V

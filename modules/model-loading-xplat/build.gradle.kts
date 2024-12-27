@@ -14,3 +14,7 @@ submodule {
 kpublish {
     createPublication("intermediary")
 }
+
+loom {
+    accessWidenerPath.set(file("xplat.accesswidener"))
+}

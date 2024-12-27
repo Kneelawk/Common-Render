@@ -1,11 +1,11 @@
 package com.kneelawk.krender.model.loading.impl.loading;
 
-import com.kneelawk.krender.model.loading.api.ModelBakeryPlugin;
-import com.kneelawk.krender.model.loading.api.PreparableModelBakeryPlugin;
+import com.kneelawk.krender.model.loading.api.ModelManagerPlugin;
+import com.kneelawk.krender.model.loading.api.PreparableModelManagerPlugin;
 import com.kneelawk.krender.model.loading.impl.KRLog;
 
-public record PreparedModelBakeryPlugin<T>(T resource, PreparableModelBakeryPlugin<T> plugin) {
-    void init(ModelBakeryPlugin.Context ctx) {
+public record PreparedModelManagerPlugin<T>(T resource, PreparableModelManagerPlugin<T> plugin) {
+    void init(ModelManagerPlugin.Context ctx) {
         try {
             plugin.init(resource, ctx);
         } catch (Exception e) {
