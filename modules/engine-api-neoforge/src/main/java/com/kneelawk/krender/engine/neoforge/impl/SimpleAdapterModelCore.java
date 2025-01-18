@@ -5,7 +5,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import net.neoforged.neoforge.client.ChunkRenderTypeSet;
 
 import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.SimpleBakedModel;
@@ -78,11 +77,6 @@ public class SimpleAdapterModelCore implements StaticBakedModelCore {
     }
 
     @Override
-    public boolean isCustomRenderer() {
-        return model.isCustomRenderer();
-    }
-
-    @Override
     public TextureAtlasSprite getParticleIcon() {
         return model.getParticleIcon();
     }
@@ -90,10 +84,5 @@ public class SimpleAdapterModelCore implements StaticBakedModelCore {
     @Override
     public ItemTransforms getTransforms() {
         return model.getTransforms();
-    }
-
-    @Override
-    public ItemOverrides getOverrides() {
-        return model.getOverrides();
     }
 }

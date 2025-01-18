@@ -1,27 +1,26 @@
 package com.kneelawk.krender.model.gltf.impl;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
-import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.renderer.block.model.TextureSlots;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.Material;
 import net.minecraft.client.resources.model.ModelBaker;
-import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.client.resources.model.ModelState;
+import net.minecraft.client.resources.model.SpriteGetter;
 import net.minecraft.client.resources.model.UnbakedModel;
 import net.minecraft.resources.ResourceLocation;
 
@@ -60,57 +59,78 @@ public class GltfUnbakedModel implements UnbakedModel {
     }
 
     @Override
-    public Collection<ResourceLocation> getDependencies() {
-        return List.of();
+    public void resolveDependencies(Resolver resolver) {
     }
 
     @Override
-    public void resolveParents(Function<ResourceLocation, UnbakedModel> resolver) {}
+    public TextureSlots.Data getTextureSlots() {
+        TextureSlots.Data.Builder builder = new TextureSlots.Data.Builder();
+        int imageCount = file.root().images().size();
+        for (int i = 0; i < imageCount; i++) {
+            try {
+                builder.addTexture(String.valueOf(i), getMaterial(i));
+            } catch (IOException e) {
+                KGltfLog.LOG.error("Error getting image {} for model gltf {}", i, name);
+            }
+        }
+
+        if (metadata.particle().isPresent()) {
+            if (metadata.particle().get().left().isPresent()) {
+                int particleIndex = metadata.particle().get().left().get();
+                if (particleIndex < 0 || particleIndex > file.root().images().size()) {
+                    KGltfLog.LOG.warn(
+                        "Model {} has metadata that requests a particle texture image index of {} out of {} images",
+                        name, particleIndex, file.root().images().size());
+                } else {
+                    try {
+                        builder.addTexture("particle", getMaterial(particleIndex));
+                    } catch (IOException e) {
+                        KGltfLog.LOG.error("Error getting particle image {} for model gltf {}", particleIndex, name, e);
+                    }
+                }
+            } else if (metadata.particle().get().right().isPresent()) {
+                builder.addTexture("particle",
+                    new Material(TextureAtlas.LOCATION_BLOCKS, metadata.particle().get().right().get()));
+            }
+        } else if (!file.root().images().isEmpty()) {
+            try {
+                builder.addTexture("particle", getMaterial(0));
+            } catch (IOException e) {
+                KGltfLog.LOG.error("Error getting default particle image 0 for model gltf {}", name, e);
+            }
+        }
+
+        return builder.build();
+    }
 
     @Override
-    public @Nullable BakedModel bake(ModelBaker baker, Function<Material, TextureAtlasSprite> spriteGetter,
-                                     ModelState state) {
-        Function<ResourceLocation, TextureAtlasSprite> blockSprite =
-            resourceLocation -> spriteGetter.apply(new Material(TextureAtlas.LOCATION_BLOCKS, resourceLocation));
+    public BakedModel bake(TextureSlots textureSlots, ModelBaker baker, ModelState modelState,
+                           boolean hasAmbientOcclusion, boolean useBlockLight, ItemTransforms transforms) {
+        SpriteGetter spriteGetter = baker.sprites();
+        Function<String, TextureAtlasSprite> spriteLookup = spriteName -> {
+            Material mat = textureSlots.getMaterial(spriteName);
+            if (mat == null) return spriteGetter.reportMissingReference(spriteName);
+            return spriteGetter.get(mat);
+        };
         try {
             MeshBuilder meshBuilder = KRenderer.getDefault().meshBuilder();
-            TextureAtlasSprite particleTexture = blockSprite.apply(MissingTextureAtlasSprite.getLocation());
+            TextureAtlasSprite particleTexture = spriteLookup.apply("particle");
 
             // build transform matrix
             Matrix4f baseTransform = new Matrix4f().identity();
-            baseTransform.mul(state.getRotation().getMatrix());
+            baseTransform.mul(modelState.getRotation().getMatrix());
             metadata.transformMatrix(baseTransform);
-
-            if (!file.root().images().isEmpty()) {
-                particleTexture = blockSprite.apply(getImage(0));
-            }
-
-            if (metadata.particle().isPresent()) {
-                if (metadata.particle().get().left().isPresent()) {
-                    int particleIndex = metadata.particle().get().left().get();
-                    if (particleIndex < 0 || particleIndex > file.root().images().size()) {
-                        particleTexture = blockSprite.apply(MissingTextureAtlasSprite.getLocation());
-                        KGltfLog.LOG.warn(
-                            "Model {} has metadata that requests a particle texture image index of {} out of {} images",
-                            name, particleIndex, file.root().images().size());
-                    } else {
-                        particleTexture = blockSprite.apply(getImage(particleIndex));
-                    }
-                } else if (metadata.particle().get().right().isPresent()) {
-                    particleTexture = blockSprite.apply(metadata.particle().get().right().get());
-                }
-            }
 
             QuadEmitter emitter = meshBuilder.emitter();
             try (PooledQuadEmitter pooled = emitter.withTransformQuad(
                 new MatrixQuadTransform.Options(baseTransform, metadata.transformGranularity()),
                 MatrixQuadTransform.getInstance())) {
                 if (file.root().scene().isPresent()) {
-                    loadScene(KRenderer.getDefault().materialManager(), pooled, metadata, blockSprite,
+                    loadScene(KRenderer.getDefault().materialManager(), pooled, metadata, spriteLookup,
                         file.root().scenes().get(file.root().scene().getAsInt()));
                 } else {
                     for (GltfScene scene : file.root().scenes()) {
-                        loadScene(KRenderer.getDefault().materialManager(), pooled, metadata, blockSprite, scene);
+                        loadScene(KRenderer.getDefault().materialManager(), pooled, metadata, spriteLookup, scene);
                     }
                 }
             }
@@ -120,21 +140,21 @@ public class GltfUnbakedModel implements UnbakedModel {
                     metadata.gui3d()));
         } catch (Exception e) {
             KGltfLog.LOG.error("Error loading model '{}'", name, e);
-            return baker.bake(ModelBakery.MISSING_MODEL_LOCATION, state);
+            return baker.bake(ResourceLocation.withDefaultNamespace("error/missing"), modelState);
         }
     }
 
     private void loadScene(MaterialManager manager, QuadEmitter emitter, GltfMetadata metadata,
-                           Function<ResourceLocation, TextureAtlasSprite> blockSprite,
+                           Function<String, TextureAtlasSprite> spriteLookup,
                            GltfScene scene) throws IOException {
         for (int nodeIndex : scene.nodes()) {
-            loadNode(manager, emitter, metadata, blockSprite, MaterialOverride.DEFAULT,
+            loadNode(manager, emitter, metadata, spriteLookup, MaterialOverride.DEFAULT,
                 file.root().nodes().get(nodeIndex), nodeIndex);
         }
     }
 
     private void loadNode(MaterialManager manager, QuadEmitter emitter, GltfMetadata metadata,
-                          Function<ResourceLocation, TextureAtlasSprite> blockSprite,
+                          Function<String, TextureAtlasSprite> spriteLookup,
                           MaterialOverride material, GltfNode node, int nodeIndex) throws IOException {
         Matrix4f nodeTransforms = new Matrix4f();
 
@@ -163,18 +183,18 @@ public class GltfUnbakedModel implements UnbakedModel {
             MatrixQuadTransform.getInstance())) {
             if (node.mesh().isPresent()) {
                 int meshIndex = node.mesh().getAsInt();
-                loadMesh(manager, pooled, metadata, blockSprite, material, file.root().meshes().get(meshIndex),
+                loadMesh(manager, pooled, metadata, spriteLookup, material, file.root().meshes().get(meshIndex),
                     meshIndex);
             }
 
             for (int child : node.children()) {
-                loadNode(manager, pooled, metadata, blockSprite, material, file.root().nodes().get(child), child);
+                loadNode(manager, pooled, metadata, spriteLookup, material, file.root().nodes().get(child), child);
             }
         }
     }
 
     private void loadMesh(MaterialManager manager, QuadEmitter emitter, GltfMetadata metadata,
-                          Function<ResourceLocation, TextureAtlasSprite> blockSprite, MaterialOverride material,
+                          Function<String, TextureAtlasSprite> spriteLookup, MaterialOverride material,
                           GltfMesh mesh, int meshIndex) throws IOException {
         material = metadata.getMeshMaterial(String.valueOf(meshIndex), material);
         if (mesh.name().isPresent()) {
@@ -183,12 +203,12 @@ public class GltfUnbakedModel implements UnbakedModel {
 
         List<GltfPrimitive> primitives = mesh.primitives();
         for (int i = 0; i < primitives.size(); i++) {
-            loadPrimitive(manager, emitter, metadata, blockSprite, material, primitives.get(i), i, meshIndex);
+            loadPrimitive(manager, emitter, metadata, spriteLookup, material, primitives.get(i), i, meshIndex);
         }
     }
 
     private void loadPrimitive(MaterialManager manager, QuadEmitter emitter, GltfMetadata metadata,
-                               Function<ResourceLocation, TextureAtlasSprite> blockSprite,
+                               Function<String, TextureAtlasSprite> spriteLookup,
                                @NotNull MaterialOverride override, GltfPrimitive primitive, int primitiveIndex,
                                int meshIndex) throws IOException {
         if (primitive.mode().isPresent() && primitive.mode().getAsInt() != 4) {
@@ -199,7 +219,7 @@ public class GltfUnbakedModel implements UnbakedModel {
         }
 
         RenderMaterial material = manager.defaultMaterial();
-        TextureAtlasSprite sprite = blockSprite.apply(MissingTextureAtlasSprite.getLocation());
+        TextureAtlasSprite sprite = null;
         int texCoordIndex = 0;
         int colorFactor = -1;
         if (primitive.material().isPresent()) {
@@ -210,7 +230,7 @@ public class GltfUnbakedModel implements UnbakedModel {
                 GltfPbrMetallicRoughness mr = gltfMaterial.pbrMetallicRoughness().get();
                 if (mr.baseColorTexture().isPresent()) {
                     GltfTextureRef ref = mr.baseColorTexture().get();
-                    sprite = getTexture(blockSprite, ref);
+                    sprite = getTexture(spriteLookup, ref);
                     texCoordIndex = ref.texCoord();
                 }
                 float[] baseColorFactorF = mr.baseColorFactor();
@@ -236,6 +256,12 @@ public class GltfUnbakedModel implements UnbakedModel {
                 override = override.overlay(metadata.getMaterial(gltfMaterial.name().get(), MaterialOverride.DEFAULT));
             }
             override = override.overlay(metadata.getMaterial(String.valueOf(materialIndex), MaterialOverride.DEFAULT));
+        }
+
+        if (sprite == null) {
+            sprite = spriteLookup.apply("primitive missing texture");
+            KGltfLog.LOG.warn("Model {}, mesh {}, primitive {} specifies no texture. Using a missing-texture.", name,
+                meshIndex, primitiveIndex);
         }
 
         // finally apply the base material override under everything else
@@ -360,11 +386,14 @@ public class GltfUnbakedModel implements UnbakedModel {
         }
     }
 
-    private TextureAtlasSprite getTexture(Function<ResourceLocation, TextureAtlasSprite> blockSprite,
-                                          GltfTextureRef ref)
-        throws IOException {
+    private TextureAtlasSprite getTexture(Function<String, TextureAtlasSprite> imageLookup,
+                                          GltfTextureRef ref) {
         GltfTexture texture = file.root().textures().get(ref.index());
-        return blockSprite.apply(getImage(texture.source()));
+        return imageLookup.apply(String.valueOf(texture.source()));
+    }
+
+    private Material getMaterial(int imageIndex) throws IOException {
+        return new Material(TextureAtlas.LOCATION_BLOCKS, getImage(imageIndex));
     }
 
     private ResourceLocation getImage(int index) throws IOException {

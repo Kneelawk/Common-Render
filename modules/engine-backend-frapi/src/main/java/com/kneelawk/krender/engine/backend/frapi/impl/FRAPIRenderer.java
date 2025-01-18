@@ -2,6 +2,10 @@ package com.kneelawk.krender.engine.backend.frapi.impl;
 
 import org.jetbrains.annotations.NotNull;
 
+import com.mojang.serialization.MapCodec;
+
+import net.minecraft.client.renderer.item.ItemModel;
+
 import com.kneelawk.krender.engine.api.convert.TypeConverter;
 import com.kneelawk.krender.engine.api.mesh.MeshBuilder;
 import com.kneelawk.krender.engine.api.model.BakedModelFactory;
@@ -14,6 +18,8 @@ import com.kneelawk.krender.engine.base.BaseKRendererApi;
 import com.kneelawk.krender.engine.base.convert.BaseTypeConverter;
 import com.kneelawk.krender.engine.base.material.BaseMaterialManagerApi;
 import com.kneelawk.krender.engine.base.mesh.BaseMeshBuilder;
+import com.kneelawk.krender.engine.impl.model.ModelCoreItemModel;
+import com.kneelawk.krender.engine.impl.model.ModelCoreSpecialRenderer;
 
 public class FRAPIRenderer implements BaseKRendererApi {
     public static final FRAPIRenderer INSTNACE = new FRAPIRenderer();

@@ -52,7 +52,7 @@ public class CTUtils {
                 FACES[corner].emit(renderTo, side);
                 renderTo.spriteBake(sprite, QuadEmitter.BAKE_ROTATE_NONE);
                 renderTo.setQuadColor(-1, -1, -1, -1);
-                renderTo.setColorIndex(-1);
+                renderTo.setTintIndex(-1);
                 renderTo.setMaterial(material);
                 renderTo.emit();
             }

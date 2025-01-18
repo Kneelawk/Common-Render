@@ -37,11 +37,6 @@ public abstract class BaseMaterialView implements MaterialView, BaseMaterialView
     }
 
     @Override
-    public boolean isColorIndexDisabled() {
-        return (bits & COLOR_INDEX_FLAG) != 0;
-    }
-
-    @Override
     public boolean isEmissive() {
         return (bits & EMISSIVE_FLAG) != 0;
     }

@@ -2,15 +2,15 @@ package com.kneelawk.krender.engine.backend.frapi.impl.model;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import net.fabricmc.fabric.api.renderer.v1.render.RenderContext;
+import net.fabricmc.fabric.api.renderer.v1.mesh.QuadEmitter;
 
 import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
@@ -58,11 +58,6 @@ public class FRAPIBakedModelImpl implements BakedModel, BakedModelCoreProvider {
     }
 
     @Override
-    public boolean isCustomRenderer() {
-        return core.isCustomRenderer();
-    }
-
-    @Override
     public @NotNull TextureAtlasSprite getParticleIcon() {
         return core.getParticleIcon();
     }
@@ -73,28 +68,24 @@ public class FRAPIBakedModelImpl implements BakedModel, BakedModelCoreProvider {
     }
 
     @Override
-    public @NotNull ItemOverrides getOverrides() {
-        return core.getOverrides();
-    }
-
-    @Override
     public boolean isVanillaAdapter() {
         return false;
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public void emitBlockQuads(BlockAndTintGetter blockView, BlockState state, BlockPos pos,
-                               Supplier<RandomSource> randomSupplier, RenderContext context) {
+    public void emitBlockQuads(QuadEmitter emitter, BlockAndTintGetter blockView, BlockState state, BlockPos pos,
+                               Supplier<RandomSource> randomSupplier, Predicate<@Nullable Direction> cullTest) {
         DataHolder data =
             Objects.requireNonNullElse((DataHolder) blockView.getBlockEntityRenderData(pos), DataHolder.empty());
         Object key = core.getBlockKey(new ModelBlockContext(blockView, pos, state, randomSupplier, data));
-        ((BakedModelCore<Object>) core).renderBlock(new FRAPIQuadEmitter(context.getEmitter()), key);
+        ((BakedModelCore<Object>) core).renderBlock(new FRAPIQuadEmitter(emitter), key);
     }
 
     @Override
-    public void emitItemQuads(ItemStack stack, Supplier<RandomSource> randomSupplier, RenderContext context) {
-        core.renderItem(new FRAPIQuadEmitter(context.getEmitter()), new ModelItemContext(stack, randomSupplier));
+    public void emitItemQuads(QuadEmitter emitter, Supplier<RandomSource> randomSupplier) {
+        BakedModel.super.emitItemQuads(emitter, randomSupplier);
+        core.renderItem(new FRAPIQuadEmitter(emitter), new ModelItemContext(ItemStack.EMPTY, randomSupplier));
     }
 
     @Override

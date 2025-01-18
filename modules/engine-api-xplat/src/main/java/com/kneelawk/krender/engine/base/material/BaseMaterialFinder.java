@@ -36,12 +36,6 @@ public abstract class BaseMaterialFinder extends BaseMaterialView implements Mat
     }
 
     @Override
-    public MaterialFinder setColorIndexDisabled(boolean disabled) {
-        bits = disabled ? (bits | COLOR_INDEX_FLAG) : (bits & ~COLOR_INDEX_FLAG);
-        return this;
-    }
-
-    @Override
     public MaterialFinder setEmissive(boolean emissive) {
         bits = emissive ? (bits | EMISSIVE_FLAG) : (bits & ~EMISSIVE_FLAG);
         return this;
@@ -64,7 +58,7 @@ public abstract class BaseMaterialFinder extends BaseMaterialView implements Mat
         if (material instanceof BaseMaterialView view) {
             bits = view.bits;
         } else {
-            setBlendMode(material.getBlendMode()).setColorIndexDisabled(material.isColorIndexDisabled())
+            setBlendMode(material.getBlendMode())
                 .setEmissive(material.isEmissive()).setDiffuseDisabled(material.isDiffuseDisabled())
                 .setAmbientOcclusionMode(material.getAmbientOcclusionMode());
         }

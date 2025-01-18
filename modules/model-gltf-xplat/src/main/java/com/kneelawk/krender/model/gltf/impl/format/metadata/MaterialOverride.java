@@ -20,7 +20,7 @@ import com.kneelawk.krender.engine.api.material.RenderMaterial;
 import com.kneelawk.krender.engine.api.util.ColorUtils;
 import com.kneelawk.krender.model.gltf.impl.format.Codecs;
 
-public record MaterialOverride(Optional<BlendMode> blendMode, Optional<Boolean> colorIndexDisabled,
+public record MaterialOverride(Optional<BlendMode> blendMode,
                                Optional<Boolean> emissive, Optional<Boolean> diffuseDisabled,
                                Optional<TriState> ambientOcclusionMode, OptionalInt colorFactor) {
     private static final Codec<Integer> COLOR_CODEC = Codec.either(Codec.INT, Codec.floatRange(0.0f, 1.0f).listOf()
@@ -32,7 +32,6 @@ public record MaterialOverride(Optional<BlendMode> blendMode, Optional<Boolean> 
 
     public static final Codec<MaterialOverride> CODEC = RecordCodecBuilder.create(instance -> instance.group(
         BlendMode.CODEC.optionalFieldOf("blendModel").forGetter(MaterialOverride::blendMode),
-        Codec.BOOL.optionalFieldOf("colorIndexDisabled").forGetter(MaterialOverride::colorIndexDisabled),
         Codec.BOOL.optionalFieldOf("emissive").forGetter(MaterialOverride::emissive),
         Codec.BOOL.optionalFieldOf("diffuseDisabled").forGetter(MaterialOverride::diffuseDisabled),
         TriState.CODEC.optionalFieldOf("ambientOcclusionMode")
@@ -41,13 +40,12 @@ public record MaterialOverride(Optional<BlendMode> blendMode, Optional<Boolean> 
     ).apply(instance, MaterialOverride::new));
 
     public static final MaterialOverride DEFAULT =
-        new MaterialOverride(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(),
+        new MaterialOverride(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(),
             OptionalInt.empty());
 
     public RenderMaterial toRenderMaterial(MaterialManager manager, RenderMaterial material) {
         MaterialFinder finder = manager.materialFinder().copyFrom(material);
         blendMode.ifPresent(finder::setBlendMode);
-        colorIndexDisabled.ifPresent(finder::setColorIndexDisabled);
         emissive.ifPresent(finder::setEmissive);
         diffuseDisabled.ifPresent(finder::setDiffuseDisabled);
         ambientOcclusionMode.ifPresent(finder::setAmbientOcclusionMode);
@@ -55,7 +53,7 @@ public record MaterialOverride(Optional<BlendMode> blendMode, Optional<Boolean> 
     }
 
     public MaterialOverride overlay(MaterialOverride under) {
-        return new MaterialOverride(blendMode.or(under::blendMode), colorIndexDisabled.or(under::colorIndexDisabled),
+        return new MaterialOverride(blendMode.or(under::blendMode),
             emissive.or(under::emissive), diffuseDisabled.or(under::diffuseDisabled),
             ambientOcclusionMode.or(under::ambientOcclusionMode), or(colorFactor, under::colorFactor));
     }

@@ -1,6 +1,6 @@
 package com.kneelawk.krender.engine.backend.frapi.api;
 
-import net.fabricmc.fabric.api.renderer.v1.RendererAccess;
+import net.fabricmc.fabric.api.renderer.v1.Renderer;
 
 import com.kneelawk.krender.engine.api.KRenderer;
 import com.kneelawk.krender.engine.api.TriState;
@@ -83,8 +83,7 @@ public final class ConversionUtils {
     public static RenderMaterial toKRender(KRenderer renderer,
                                            net.fabricmc.fabric.api.renderer.v1.material.RenderMaterial material) {
         return renderer.materialManager().materialFinder().setBlendMode(toKRender(material.blendMode()))
-            .setColorIndexDisabled(material.disableColorIndex()).setEmissive(material.emissive())
-            .setDiffuseDisabled(material.disableDiffuse())
+            .setEmissive(material.emissive()).setDiffuseDisabled(material.disableDiffuse())
             .setAmbientOcclusionMode(toKRender(material.ambientOcclusion())).find();
     }
 
@@ -95,9 +94,8 @@ public final class ConversionUtils {
      * @return the equivalent FRAPI render material.
      */
     public static net.fabricmc.fabric.api.renderer.v1.material.RenderMaterial toFabric(RenderMaterial material) {
-        return RendererAccess.INSTANCE.getRenderer().materialFinder().blendMode(toFabric(material.getBlendMode()))
-            .disableColorIndex(material.isColorIndexDisabled()).emissive(material.isEmissive())
-            .disableDiffuse(material.isDiffuseDisabled()).ambientOcclusion(toFabric(material.getAmbientOcclusionMode()))
-            .find();
+        return Renderer.get().materialFinder().blendMode(toFabric(material.getBlendMode()))
+            .emissive(material.isEmissive()).disableDiffuse(material.isDiffuseDisabled())
+            .ambientOcclusion(toFabric(material.getAmbientOcclusionMode())).find();
     }
 }

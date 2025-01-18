@@ -33,10 +33,6 @@ public interface BaseMaterialViewApi extends MaterialView {
      */
     int BLEND_MODE_BIT_LENGTH = Mth.ceillog2(BLEND_MODE_COUNT);
     /**
-     * Color index disable flag bit length.
-     */
-    int COLOR_INDEX_BIT_LENGTH = 1;
-    /**
      * Emissive flag bit length.
      */
     int EMISSIVE_BIT_LENGTH = 1;
@@ -58,17 +54,9 @@ public interface BaseMaterialViewApi extends MaterialView {
      */
     int BLEND_MODE_MASK = bitMask(BLEND_MODE_BIT_LENGTH, BLEND_MODE_BIT_OFFSET);
     /**
-     * Color index disable flag bit offset.
-     */
-    int COLOR_INDEX_BIT_OFFSET = BLEND_MODE_BIT_OFFSET + BLEND_MODE_BIT_LENGTH;
-    /**
-     * Color index disable flag bit mask.
-     */
-    int COLOR_INDEX_FLAG = bitMask(COLOR_INDEX_BIT_LENGTH, COLOR_INDEX_BIT_OFFSET);
-    /**
      * Emissive flag bit length.
      */
-    int EMISSIVE_BIT_OFFSET = COLOR_INDEX_BIT_OFFSET + COLOR_INDEX_BIT_LENGTH;
+    int EMISSIVE_BIT_OFFSET = BLEND_MODE_BIT_OFFSET + BLEND_MODE_BIT_LENGTH;
     /**
      * Emissive flag bit mask.
      */

@@ -34,7 +34,7 @@ public final class BaseQuadFormat {
     /**
      * The int index of the color index in the header.
      */
-    public static final int HEADER_COLOR_INDEX = 2;
+    public static final int HEADER_TINT_INDEX = 2;
     /**
      * The int index of the tag in the header.
      */

@@ -78,7 +78,7 @@ public class ItemSplittingQuadBaker {
 
     public static RenderType getItemRenderType(RenderMaterial material) {
         return switch (material.getBlendMode()) {
-            case DEFAULT, TRANSLUCENT -> Sheets.translucentCullBlockSheet();
+            case DEFAULT, TRANSLUCENT -> Sheets.translucentItemSheet();
             case SOLID -> Sheets.solidBlockSheet();
             case CUTOUT_MIPPED, CUTOUT -> Sheets.cutoutBlockSheet();
         };

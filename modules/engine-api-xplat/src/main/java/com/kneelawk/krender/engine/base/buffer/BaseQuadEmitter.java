@@ -1,5 +1,7 @@
 package com.kneelawk.krender.engine.base.buffer;
 
+import java.util.Objects;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -10,7 +12,6 @@ import org.joml.Vector3f;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
@@ -33,9 +34,9 @@ import static com.kneelawk.krender.engine.api.util.ColorUtils.toArgb;
 import static com.kneelawk.krender.engine.api.util.ColorUtils.toFixed;
 import static com.kneelawk.krender.engine.base.buffer.BaseQuadFormat.EMPTY;
 import static com.kneelawk.krender.engine.base.buffer.BaseQuadFormat.HEADER_BITS;
-import static com.kneelawk.krender.engine.base.buffer.BaseQuadFormat.HEADER_COLOR_INDEX;
 import static com.kneelawk.krender.engine.base.buffer.BaseQuadFormat.HEADER_STRIDE;
 import static com.kneelawk.krender.engine.base.buffer.BaseQuadFormat.HEADER_TAG;
+import static com.kneelawk.krender.engine.base.buffer.BaseQuadFormat.HEADER_TINT_INDEX;
 import static com.kneelawk.krender.engine.base.buffer.BaseQuadFormat.TOTAL_STRIDE;
 import static com.kneelawk.krender.engine.base.buffer.BaseQuadFormat.VERTEX_COLOR;
 import static com.kneelawk.krender.engine.base.buffer.BaseQuadFormat.VERTEX_LIGHTMAP;
@@ -99,7 +100,7 @@ public abstract class BaseQuadEmitter extends BaseQuadView implements QuadEmitte
         System.arraycopy(EMPTY, 0, data, baseIndex, TOTAL_STRIDE);
         geometryInvalid = true;
         nominalFace = null;
-        setColorIndex(-1);
+        setTintIndex(-1);
         setCullFace(null);
         setMaterial(defaultMaterial);
         vertexIndex = 0;
@@ -130,6 +131,8 @@ public abstract class BaseQuadEmitter extends BaseQuadView implements QuadEmitte
      * @param baseIndex the position within the buffer to start copying.
      */
     public void copyFrom(int[] data, int baseIndex) {
+        Objects.requireNonNull(data, "data is null");
+        Objects.requireNonNull(this.data, "this.data is null");
         System.arraycopy(data, baseIndex, this.data, this.baseIndex, TOTAL_STRIDE);
         load();
     }
@@ -151,7 +154,7 @@ public abstract class BaseQuadEmitter extends BaseQuadView implements QuadEmitte
             setCullFace(quad.getCullFace());
             setNominalFace(quad.getNominalFace());
             setMaterial(renderer.converter().toAssociated(quad.getMaterial()));
-            setColorIndex(quad.getColorIndex());
+            setTintIndex(quad.getTintIndex());
             setTag(quad.getTag());
 
             for (int i = 0; i < 4; i++) {
@@ -346,9 +349,9 @@ public abstract class BaseQuadEmitter extends BaseQuadView implements QuadEmitte
     }
 
     @Override
-    public QuadEmitter setColorIndex(int colorIndex) {
+    public QuadEmitter setTintIndex(int tintIndex) {
         flushVertices();
-        data[baseIndex + HEADER_COLOR_INDEX] = colorIndex;
+        data[baseIndex + HEADER_TINT_INDEX] = tintIndex;
         return this;
     }
 
@@ -380,7 +383,7 @@ public abstract class BaseQuadEmitter extends BaseQuadView implements QuadEmitte
         fromVanilla(quad.getVertices(), 0);
         data[baseIndex + HEADER_BITS] = BaseQuadFormat.setCullFace(0, cullFace);
         setNominalFace(quad.getDirection());
-        setColorIndex(quad.getTintIndex());
+        setTintIndex(quad.getTintIndex());
 
         // pick up shading from quad
         MaterialFinder finder = renderer.materialManager().materialFinder().copyFrom(material);
@@ -389,10 +392,7 @@ public abstract class BaseQuadEmitter extends BaseQuadView implements QuadEmitte
             finder.setDiffuseDisabled(true);
         }
 
-        if (getLightmap(0) == LightTexture.FULL_BRIGHT && getLightmap(1) == LightTexture.FULL_BRIGHT &&
-            getLightmap(2) == LightTexture.FULL_BRIGHT && getLightmap(3) == LightTexture.FULL_BRIGHT) {
-            finder.setEmissive(true);
-        }
+        finder.setEmissive(quad.getLightEmission() > 0);
 
         setMaterial(finder.find());
         setTag(0);

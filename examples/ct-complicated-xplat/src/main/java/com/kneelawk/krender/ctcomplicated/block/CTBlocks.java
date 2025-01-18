@@ -14,12 +14,12 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 
+import com.kneelawk.kregistry.core.api.KRegistrar;
 import com.kneelawk.krender.ctcomplicated.CTComplicated;
-import com.kneelawk.krender.ctcomplicated.registry.Registrar;
 
 public class CTBlocks {
-    private static final Registrar<Block> BLOCKS = CTComplicated.REGISTRARS.get(Registries.BLOCK);
-    private static final Registrar<Item> ITEMS = CTComplicated.REGISTRARS.get(Registries.ITEM);
+    private static final KRegistrar<Block> BLOCKS = CTComplicated.REGISTRARS.get(Registries.BLOCK);
+    private static final KRegistrar<Item> ITEMS = CTComplicated.REGISTRARS.get(Registries.ITEM);
 
     public static final Supplier<GlassBlock> CT_GLASS = BLOCKS.register("ct_glass", () -> new GlassBlock(
         BlockBehaviour.Properties.of().instrument(NoteBlockInstrument.HAT).strength(0.3f).sound(SoundType.GLASS)

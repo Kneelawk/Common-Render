@@ -1,6 +1,5 @@
 package com.kneelawk.krender.ctcomplicated.client;
 
-import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
@@ -44,7 +43,7 @@ public final class DiscoFloorBakedModel implements BakedModelCore<CTUtils.Data> 
             emitter.setUv(3, 1f, 0f);
             emitter.spriteBake(baseSprites[0], QuadEmitter.BAKE_ROTATE_NONE);
             emitter.setQuadColor(-1, -1, -1, -1);
-            emitter.setColorIndex(-1);
+            emitter.setTintIndex(-1);
             emitter.setMaterial(BASE_MATERIAL);
             emitter.emit();
 
@@ -55,7 +54,7 @@ public final class DiscoFloorBakedModel implements BakedModelCore<CTUtils.Data> 
             emitter.setUv(3, 1f, 0f);
             emitter.spriteBake(glowingSprites[0], QuadEmitter.BAKE_ROTATE_NONE);
             emitter.setQuadColor(-1, -1, -1, -1);
-            emitter.setColorIndex(-1);
+            emitter.setTintIndex(-1);
             emitter.setMaterial(GLOW_MATERIAL);
             emitter.emit();
         }
@@ -79,11 +78,6 @@ public final class DiscoFloorBakedModel implements BakedModelCore<CTUtils.Data> 
     }
 
     @Override
-    public boolean isCustomRenderer() {
-        return false;
-    }
-
-    @Override
     public TextureAtlasSprite getParticleIcon() {
         return particle;
     }
@@ -91,11 +85,6 @@ public final class DiscoFloorBakedModel implements BakedModelCore<CTUtils.Data> 
     @Override
     public ItemTransforms getTransforms() {
         return ModelUtils.BLOCK_DISPLAY;
-    }
-
-    @Override
-    public ItemOverrides getOverrides() {
-        return ItemOverrides.EMPTY;
     }
 
     @Override

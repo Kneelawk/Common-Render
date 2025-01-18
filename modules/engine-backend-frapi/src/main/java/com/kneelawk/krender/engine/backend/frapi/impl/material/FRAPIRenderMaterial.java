@@ -1,10 +1,8 @@
 package com.kneelawk.krender.engine.backend.frapi.impl.material;
 
-import java.util.Objects;
-
 import org.jetbrains.annotations.Nullable;
 
-import net.fabricmc.fabric.api.renderer.v1.RendererAccess;
+import net.fabricmc.fabric.api.renderer.v1.Renderer;
 
 import com.kneelawk.krender.engine.api.KRenderer;
 import com.kneelawk.krender.engine.api.material.RenderMaterial;
@@ -18,9 +16,8 @@ public class FRAPIRenderMaterial extends BaseMaterialView implements RenderMater
     public FRAPIRenderMaterial(int bits) {
         super(bits);
         material =
-            Objects.requireNonNull(RendererAccess.INSTANCE.getRenderer(), "Missing FRAPI renderer").materialFinder()
-                .blendMode(ConversionUtils.toFabric(getBlendMode())).disableColorIndex(isColorIndexDisabled())
-                .emissive(isEmissive()).disableDiffuse(isDiffuseDisabled())
+            Renderer.get().materialFinder().blendMode(ConversionUtils.toFabric(getBlendMode())).emissive(isEmissive())
+                .disableDiffuse(isDiffuseDisabled())
                 .ambientOcclusion(ConversionUtils.toFabric(getAmbientOcclusionMode())).find();
     }
 

@@ -19,11 +19,11 @@ public abstract class NFRootQuadEmitter extends RootQuadEmitter {
         final RenderMaterial material = getMaterial();
 
         toVanilla(quad, 0);
-        int tintIndex = material.isColorIndexDisabled() ? -1 : getColorIndex();
         boolean shade = !material.isDiffuseDisabled();
 
         // NeoForge adds a BakedQuad constructor that handles AO
         boolean hasAo = material.getAmbientOcclusionMode() != TriState.FALSE;
-        return new BakedQuad(quad, tintIndex, getLightFace(), sprite, shade, hasAo);
+        int emission = material.isEmissive() ? 15 : 0;
+        return new BakedQuad(quad, getTintIndex(), getLightFace(), sprite, shade, emission, hasAo);
     }
 }

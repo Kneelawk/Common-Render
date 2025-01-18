@@ -19,11 +19,6 @@ public interface MaterialView extends RendererDependent {
     BlendMode getBlendMode();
 
     /**
-     * {@return whether this material disables color indices}
-     */
-    boolean isColorIndexDisabled();
-
-    /**
      * {@return whether this material is emissive}
      * <p>
      * Emissive materials always render at full-brightness, ignoring provided lightmap values.

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import com.google.common.cache.CacheBuilder;
@@ -12,13 +13,12 @@ import com.google.common.cache.LoadingCache;
 
 import org.jetbrains.annotations.Nullable;
 
-import net.fabricmc.fabric.api.renderer.v1.RendererAccess;
+import net.fabricmc.fabric.api.renderer.v1.Renderer;
 import net.fabricmc.fabric.api.renderer.v1.mesh.Mesh;
-import net.fabricmc.fabric.api.renderer.v1.mesh.MeshBuilder;
-import net.fabricmc.fabric.api.renderer.v1.render.RenderContext;
+import net.fabricmc.fabric.api.renderer.v1.mesh.MutableMesh;
+import net.fabricmc.fabric.api.renderer.v1.mesh.QuadEmitter;
 
 import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
@@ -42,16 +42,16 @@ public class FRAPICachedBakedModelImpl implements BakedModel, BakedModelCoreProv
 
     private final LoadingCache<ModelKeyHolder, Mesh> meshCache =
         CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.MINUTES).build(CacheLoader.from(key -> {
-            MeshBuilder builder =
-                Objects.requireNonNull(RendererAccess.INSTANCE.getRenderer(), "No FRAPI renderer").meshBuilder();
+            MutableMesh builder =
+                Renderer.get().mutableMesh();
             render(key, builder);
-            return builder.build();
+            return builder.immutableCopy();
         }));
 
     @SuppressWarnings("unchecked")
-    private void render(ModelKeyHolder key, MeshBuilder builder) {
+    private void render(ModelKeyHolder key, MutableMesh builder) {
         try {
-            ((BakedModelCore<Object>) core).renderBlock(new FRAPIQuadEmitter(builder.getEmitter()), key.modelKey());
+            ((BakedModelCore<Object>) core).renderBlock(new FRAPIQuadEmitter(builder.emitter()), key.modelKey());
         } catch (Exception e) {
             KRBFRLog.LOG.error("Error rendering cached quads for model");
         }
@@ -80,11 +80,6 @@ public class FRAPICachedBakedModelImpl implements BakedModel, BakedModelCoreProv
     }
 
     @Override
-    public boolean isCustomRenderer() {
-        return core.isCustomRenderer();
-    }
-
-    @Override
     public TextureAtlasSprite getParticleIcon() {
         return core.getParticleIcon();
     }
@@ -95,32 +90,27 @@ public class FRAPICachedBakedModelImpl implements BakedModel, BakedModelCoreProv
     }
 
     @Override
-    public ItemOverrides getOverrides() {
-        return core.getOverrides();
-    }
-
-    @Override
     public boolean isVanillaAdapter() {
         return false;
     }
 
     @Override
-    public void emitBlockQuads(BlockAndTintGetter blockView, BlockState state, BlockPos pos,
-                               Supplier<RandomSource> randomSupplier, RenderContext context) {
+    public void emitBlockQuads(QuadEmitter emitter, BlockAndTintGetter blockView, BlockState state, BlockPos pos,
+                               Supplier<RandomSource> randomSupplier, Predicate<@Nullable Direction> cullTest) {
         DataHolder data =
             Objects.requireNonNullElse((DataHolder) blockView.getBlockEntityRenderData(pos), DataHolder.empty());
         Object key = core.getBlockKey(new ModelBlockContext(blockView, pos, state, randomSupplier, data));
         try {
             Mesh mesh = meshCache.get(new ModelKeyHolder(key));
-            mesh.outputTo(context.getEmitter());
+            mesh.outputTo(emitter);
         } catch (ExecutionException e) {
             KRBFRLog.LOG.error("Error caching model", e);
         }
     }
 
     @Override
-    public void emitItemQuads(ItemStack stack, Supplier<RandomSource> randomSupplier, RenderContext context) {
-        core.renderItem(new FRAPIQuadEmitter(context.getEmitter()), new ModelItemContext(stack, randomSupplier));
+    public void emitItemQuads(QuadEmitter emitter, Supplier<RandomSource> randomSupplier) {
+        core.renderItem(new FRAPIQuadEmitter(emitter), new ModelItemContext(ItemStack.EMPTY, randomSupplier));
     }
 
     @Override

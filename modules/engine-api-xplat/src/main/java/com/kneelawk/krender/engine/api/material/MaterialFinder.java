@@ -31,14 +31,6 @@ public interface MaterialFinder extends MaterialView {
     MaterialFinder setBlendMode(BlendMode blendMode);
 
     /**
-     * Tint indices are enabled by default. Use this method to disable them.
-     *
-     * @param disabled whether to disable tint indices.
-     * @return this material finder.
-     */
-    MaterialFinder setColorIndexDisabled(boolean disabled);
-
-    /**
      * Sets whether this material is emissive. This causes it to ignore lighting values.
      *
      * @param emissive the emissive value.

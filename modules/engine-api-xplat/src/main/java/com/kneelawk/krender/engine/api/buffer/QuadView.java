@@ -221,9 +221,9 @@ public interface QuadView extends RendererDependent {
     RenderMaterial getMaterial();
 
     /**
-     * {@return the quad color index serialized with the quad}
+     * {@return the quad tint index serialized with the quad}
      */
-    int getColorIndex();
+    int getTintIndex();
 
     /**
      * {@return the user-defined tag associated with this quad}

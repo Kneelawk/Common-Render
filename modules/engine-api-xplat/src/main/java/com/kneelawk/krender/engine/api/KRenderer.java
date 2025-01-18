@@ -2,6 +2,7 @@ package com.kneelawk.krender.engine.api;
 
 import java.util.List;
 
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import com.kneelawk.krender.engine.api.convert.TypeConverter;
@@ -66,6 +67,7 @@ public interface KRenderer {
     /**
      * {@return a baked model unwrapper associated with this backend}
      */
+    @ApiStatus.OverrideOnly
     BakedModelUnwrapper bakedModelUnwrapper();
 
     /**
@@ -82,4 +84,6 @@ public interface KRenderer {
      * {@return this backend's type converter}
      */
     TypeConverter converter();
+    
+    
 }

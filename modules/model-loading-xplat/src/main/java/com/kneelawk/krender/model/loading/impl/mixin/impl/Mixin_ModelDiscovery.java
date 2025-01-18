@@ -1,7 +1,5 @@
 package com.kneelawk.krender.model.loading.impl.mixin.impl;
 
-import java.util.Map;
-
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -22,12 +20,12 @@ public abstract class Mixin_ModelDiscovery {
 
     @Unique
     private ModelManagerPluginManager krender$manager;
-    
-    @Inject(method = "<init>", at = @At("RETURN"))
-    private void krender$init(Map<ResourceLocation, UnbakedModel> inputModels, UnbakedModel missingModel, CallbackInfo ci) {
+
+    @Inject(method = "name=/<init>/", at = @At("RETURN"))
+    private void krender$init(CallbackInfo ci) {
         krender$manager = ModelManagerPluginManager.CURRENT_MANAGER.get();
     }
-    
+
     @Inject(method = "discoverDependencies", at = @At("RETURN"))
     private void krender$referenceExtraModels(CallbackInfo ci) {
         if (krender$manager != null) {

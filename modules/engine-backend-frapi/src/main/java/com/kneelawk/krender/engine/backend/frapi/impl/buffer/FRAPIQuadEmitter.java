@@ -31,7 +31,7 @@ public class FRAPIQuadEmitter extends RootQuadEmitter {
         target.cullFace(getCullFace());
         target.nominalFace(getNominalFace());
         target.material(ConversionUtils.toFabric(getMaterial()));
-        target.colorIndex(getColorIndex());
+        target.tintIndex(getTintIndex());
         target.tag(getTag());
 
         for (int i = 0; i < 4; i++) {

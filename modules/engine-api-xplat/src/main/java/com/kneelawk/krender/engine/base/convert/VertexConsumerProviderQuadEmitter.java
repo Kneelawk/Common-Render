@@ -6,6 +6,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import com.kneelawk.krender.engine.api.material.RenderMaterial;
 import com.kneelawk.krender.engine.base.BaseKRendererApi;
+import com.kneelawk.krender.engine.base.buffer.BaseQuadFormat;
 import com.kneelawk.krender.engine.base.buffer.RootQuadEmitter;
 
 /**
@@ -25,6 +26,7 @@ public class VertexConsumerProviderQuadEmitter extends RootQuadEmitter {
                                              Function<RenderMaterial, VertexConsumer> provider) {
         super(renderer);
         this.provider = provider;
+        begin(new int[BaseQuadFormat.TOTAL_STRIDE], 0);
     }
 
     @Override

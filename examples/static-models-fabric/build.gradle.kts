@@ -19,3 +19,11 @@ dependencies {
         exclude(group = "net.fabricmc.fabric-api")
     }
 }
+
+loom {
+    runs {
+        configureEach {
+            vmArg("-Dmixin.debug.export=true")
+        }
+    }
+}

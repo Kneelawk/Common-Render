@@ -6,7 +6,6 @@ import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
@@ -50,11 +49,6 @@ public class ItemBakedModel implements BakedModel {
     }
 
     @Override
-    public boolean isCustomRenderer() {
-        return core.isCustomRenderer();
-    }
-
-    @Override
     public TextureAtlasSprite getParticleIcon() {
         return core.getParticleIcon();
     }
@@ -65,12 +59,7 @@ public class ItemBakedModel implements BakedModel {
     }
 
     @Override
-    public ItemOverrides getOverrides() {
-        return core.getOverrides();
-    }
-
-    @Override
-    public List<RenderType> getRenderTypes(ItemStack itemStack, boolean fabulous) {
-        return List.of(type);
+    public RenderType getRenderType(ItemStack itemStack) {
+        return type;
     }
 }

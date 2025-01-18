@@ -1,6 +1,5 @@
 package com.kneelawk.krender.ctcomplicated.client;
 
-import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 
@@ -9,8 +8,6 @@ import com.kneelawk.krender.engine.api.material.RenderMaterial;
 import com.kneelawk.krender.engine.api.model.BakedModelCore;
 import com.kneelawk.krender.engine.api.model.ModelBlockContext;
 import com.kneelawk.krender.engine.api.model.ModelItemContext;
-
-import static java.lang.Math.abs;
 
 public record CTGlassBakedModel(boolean doCorners, boolean interiorBorder, TextureAtlasSprite particle,
                                 TextureAtlasSprite[] sprites, RenderMaterial material)
@@ -32,11 +29,6 @@ public record CTGlassBakedModel(boolean doCorners, boolean interiorBorder, Textu
     }
 
     @Override
-    public boolean isCustomRenderer() {
-        return true;
-    }
-
-    @Override
     public TextureAtlasSprite getParticleIcon() {
         return particle;
     }
@@ -44,11 +36,6 @@ public record CTGlassBakedModel(boolean doCorners, boolean interiorBorder, Textu
     @Override
     public ItemTransforms getTransforms() {
         return ItemTransforms.NO_TRANSFORMS;
-    }
-
-    @Override
-    public ItemOverrides getOverrides() {
-        return ItemOverrides.EMPTY;
     }
 
     @Override

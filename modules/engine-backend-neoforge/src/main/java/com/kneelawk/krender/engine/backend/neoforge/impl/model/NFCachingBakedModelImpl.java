@@ -15,18 +15,14 @@ import net.neoforged.neoforge.common.util.TriState;
 
 import org.jetbrains.annotations.Nullable;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
@@ -84,11 +80,6 @@ public class NFCachingBakedModelImpl implements BakedModel, BakedModelCoreProvid
     }
 
     @Override
-    public boolean isCustomRenderer() {
-        return core.isCustomRenderer();
-    }
-
-    @Override
     public TextureAtlasSprite getParticleIcon() {
         return core.getParticleIcon();
     }
@@ -96,11 +87,6 @@ public class NFCachingBakedModelImpl implements BakedModel, BakedModelCoreProvid
     @Override
     public ItemTransforms getTransforms() {
         return core.getTransforms();
-    }
-
-    @Override
-    public ItemOverrides getOverrides() {
-        return core.getOverrides();
     }
 
     @Override
@@ -131,20 +117,14 @@ public class NFCachingBakedModelImpl implements BakedModel, BakedModelCoreProvid
     }
 
     @Override
-    public BakedModel applyTransform(ItemDisplayContext transformType, PoseStack poseStack,
-                                     boolean applyLeftHandTransform) {
-        // default impl for now
-        return BakedModel.super.applyTransform(transformType, poseStack, applyLeftHandTransform);
-    }
-
-    @Override
     public ModelData getModelData(BlockAndTintGetter level, BlockPos pos, BlockState state, ModelData modelData) {
         RandomSource random = RANDOM_SOURCES.get();
         long seed = state.getSeed(pos);
         Object key = core.getBlockKey(new ModelBlockContext(level, pos, state, () -> {
             random.setSeed(seed);
             return random;
-        }, Objects.requireNonNullElse(modelData.get(ModelDataProperties.DATA_HOLDER_MODEL_PROPERTY), DataHolder.empty())));
+        }, Objects.requireNonNullElse(modelData.get(ModelDataProperties.DATA_HOLDER_MODEL_PROPERTY),
+            DataHolder.empty())));
         return modelData.derive().with(ModelKeyHolder.PROPERTY, new ModelKeyHolder(key)).build();
     }
 
@@ -168,7 +148,7 @@ public class NFCachingBakedModelImpl implements BakedModel, BakedModelCoreProvid
     }
 
     @Override
-    public List<BakedModel> getRenderPasses(ItemStack itemStack, boolean fabulous) {
+    public List<BakedModel> getRenderPasses(ItemStack itemStack) {
         RandomSource random = RANDOM_SOURCES.get();
         ItemSplittingQuadBaker baker = ItemSplittingQuadBaker.get();
         core.renderItem(baker.emitter(), new ModelItemContext(itemStack, () -> {

@@ -1,0 +1,6 @@
+{
+  "model": {
+    "type": "krender:model",
+    "model": "static_models:block/lamp"
+  }
+}

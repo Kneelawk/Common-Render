@@ -3,6 +3,7 @@ package com.kneelawk.krender.engine.base.convert;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import com.kneelawk.krender.engine.base.BaseKRendererApi;
+import com.kneelawk.krender.engine.base.buffer.BaseQuadFormat;
 import com.kneelawk.krender.engine.base.buffer.RootQuadEmitter;
 
 /**
@@ -21,6 +22,7 @@ public class VertexConsumerQuadEmitter extends RootQuadEmitter {
     public VertexConsumerQuadEmitter(BaseKRendererApi renderer, VertexConsumer consumer) {
         super(renderer);
         this.consumer = consumer;
+        begin(new int[BaseQuadFormat.TOTAL_STRIDE], 0);
     }
 
     @Override

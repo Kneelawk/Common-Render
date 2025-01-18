@@ -15,7 +15,11 @@
   "license": "MIT",
   "icon": "assets/${mod_id}/icon.png",
   "environment": "client",
-  "entrypoints": { },
+  "entrypoints": {
+    "client": [
+      "com.kneelawk.krender.engine.fabric.impl.ClientEntrypoint"
+    ]
+  },
   "mixins": [
     "krender_engine_api.xplat.mixins.json",
     "krender_engine_api.fabric.mixins.json"

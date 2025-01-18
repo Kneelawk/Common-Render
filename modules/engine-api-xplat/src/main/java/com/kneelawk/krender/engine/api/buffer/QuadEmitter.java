@@ -503,12 +503,12 @@ public interface QuadEmitter extends QuadView, QuadSink {
     QuadEmitter setMaterial(@Nullable RenderMaterial material);
 
     /**
-     * Sets this quad's color index.
+     * Sets this quad's tint index.
      *
-     * @param colorIndex the color index for this quad.
+     * @param tintIndex the tint index for this quad.
      * @return this quad emitter.
      */
-    QuadEmitter setColorIndex(int colorIndex);
+    QuadEmitter setTintIndex(int tintIndex);
 
     /**
      * Adds an extra user-defined integer tag to this quad.

@@ -57,7 +57,7 @@ public class Mixin_ModelManager implements Duck_ModelManager {
         target = "Lnet/minecraft/client/resources/model/ModelManager;loadBlockModels(Lnet/minecraft/server/packs/resources/ResourceManager;Ljava/util/concurrent/Executor;)Ljava/util/concurrent/CompletableFuture;"))
     private CompletableFuture<Map<ResourceLocation, UnbakedModel>> krender$addReferenceableModels(
         CompletableFuture<Map<ResourceLocation, UnbakedModel>> original,
-        @Local(name = "backgroundExecutor") Executor backgroundExecutor,
+        @Local(argsOnly = true, ordinal = 0) Executor backgroundExecutor,
         @Share("pluginManager") LocalRef<CompletableFuture<ModelManagerPluginManager>> pluginManager) {
         return original.thenCombineAsync(pluginManager.get(),
             (models, manager) -> manager.addReferenceableModels(models), backgroundExecutor);
@@ -67,7 +67,7 @@ public class Mixin_ModelManager implements Duck_ModelManager {
         target = "Lnet/minecraft/client/resources/model/BlockStateModelLoader;loadBlockStates(Lnet/minecraft/client/resources/model/UnbakedModel;Lnet/minecraft/server/packs/resources/ResourceManager;Ljava/util/concurrent/Executor;)Ljava/util/concurrent/CompletableFuture;"))
     private CompletableFuture<BlockStateModelLoader.LoadedModels> krender$addBlockStateModels(
         CompletableFuture<BlockStateModelLoader.LoadedModels> original,
-        @Local(name = "backgroundExecutor") Executor backgroundExecutor,
+        @Local(argsOnly = true, ordinal = 0) Executor backgroundExecutor,
         @Share("pluginManager") LocalRef<CompletableFuture<ModelManagerPluginManager>> pluginManager) {
         return original.thenCombineAsync(pluginManager.get(), (models, manager) -> manager.addBlockStateModels(models),
             backgroundExecutor);
@@ -110,9 +110,9 @@ public class Mixin_ModelManager implements Duck_ModelManager {
         };
     }
 
-    @Inject(method = "apply", at = @At(value = "INVOKE_STRING",
-        target = "Lnet/minecraft/util/profiling/ProfilerFiller;popPush(Ljava/lang/String;)V", args = "ldc=cache"))
-    private void krender$apply(CallbackInfo ci, @Local ModelBakery.BakingResult bakingResult) {
+    @Inject(method = "apply", at = @At(value = "INVOKE",
+        target = "Lnet/minecraft/client/resources/model/ModelBakery$BakingResult;missingItemModel()Lnet/minecraft/client/renderer/item/ItemModel;"))
+    private void krender$apply(CallbackInfo ci, @Local() ModelBakery.BakingResult bakingResult) {
         krender$extraModels = ((Duck_ModelBakeryBakingResult) (Object) bakingResult).krender$getExtraModels();
     }
 

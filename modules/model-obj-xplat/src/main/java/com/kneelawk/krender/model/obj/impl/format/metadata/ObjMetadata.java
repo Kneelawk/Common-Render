@@ -5,17 +5,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import com.google.gson.JsonObject;
-
 import org.joml.Matrix4f;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.minecraft.Util;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.metadata.MetadataSectionSerializer;
+import net.minecraft.server.packs.metadata.MetadataSectionType;
 import net.minecraft.world.phys.Vec3;
 
 public record ObjMetadata(Vec3 translation, Vec3 rotation, Vec3 scale, List<MetadataTransform> transforms,
@@ -61,6 +58,8 @@ public record ObjMetadata(Vec3 translation, Vec3 rotation, Vec3 scale, List<Meta
         new ObjMetadata(Vec3.ZERO, Vec3.ZERO, new Vec3(1.0, 1.0, 1.0), List.of(), new Matrix4f(),
             MaterialOverride.DEFAULT, Map.of(), true, true, Optional.empty(), 0f);
 
+    public static final MetadataSectionType<ObjMetadata> TYPE = new MetadataSectionType<>("krender:obj", CODEC);
+
     public void transformMatrix(Matrix4f matrix) {
         matrix.translate(translation.toVector3f());
         matrix.rotate((float) (rotation.z * Math.PI / 180.0), 0f, 0f, 1f)
@@ -80,19 +79,5 @@ public record ObjMetadata(Vec3 translation, Vec3 rotation, Vec3 scale, List<Meta
             return materialOverrides.get(key).overlay(old);
         }
         return old;
-    }
-
-    public static final class Serializer implements MetadataSectionSerializer<ObjMetadata> {
-        public static final Serializer INSTANCE = new Serializer();
-
-        @Override
-        public String getMetadataSectionName() {
-            return "krender:obj";
-        }
-
-        @Override
-        public ObjMetadata fromJson(JsonObject json) {
-            return CODEC.parse(JsonOps.INSTANCE, json).getOrThrow();
-        }
     }
 }

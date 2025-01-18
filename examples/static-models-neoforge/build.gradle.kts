@@ -18,6 +18,7 @@ neoForge {
     runs {
         configureEach {
 //            logLevel = org.slf4j.event.Level.DEBUG
+            systemProperty("mixin.debug.export", "true")
         }
     }
 }

@@ -1,7 +1,5 @@
 package com.kneelawk.krender.model.obj.impl;
 
-import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -11,14 +9,15 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 
 import org.joml.Matrix4f;
 
-import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.renderer.block.model.TextureSlots;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.Material;
 import net.minecraft.client.resources.model.ModelBaker;
-import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.client.resources.model.ModelState;
+import net.minecraft.client.resources.model.SpriteGetter;
 import net.minecraft.client.resources.model.UnbakedModel;
 import net.minecraft.resources.ResourceLocation;
 
@@ -55,39 +54,54 @@ public class ObjUnbakedModel implements UnbakedModel {
     }
 
     @Override
-    public Collection<ResourceLocation> getDependencies() {
-        return List.of();
+    public void resolveDependencies(Resolver resolver) {
     }
 
     @Override
-    public void resolveParents(Function<ResourceLocation, UnbakedModel> resolver) {}
+    public TextureSlots.Data getTextureSlots() {
+        TextureSlots.Data.Builder builder = new TextureSlots.Data.Builder();
+
+        for (MtlMaterial material : file.materials().values()) {
+            if (material.diffuseTexture() != null) {
+                builder.addTexture(material.name(),
+                    new Material(TextureAtlas.LOCATION_BLOCKS, material.diffuseTexture()));
+            }
+        }
+
+        if (metadata.particle().isPresent()) {
+            builder.addTexture("__particle", new Material(TextureAtlas.LOCATION_BLOCKS, metadata.particle().get()));
+        } else {
+            for (MtlMaterial material : file.materials().values()) {
+                if (material.diffuseTexture() != null) {
+                    builder.addTexture("__particle",
+                        new Material(TextureAtlas.LOCATION_BLOCKS, material.diffuseTexture()));
+                    break;
+                }
+            }
+        }
+
+        return builder.build();
+    }
 
     @Override
-    public @Nullable BakedModel bake(ModelBaker baker, Function<Material, TextureAtlasSprite> spriteGetter,
-                                     ModelState state) {
-        Function<ResourceLocation, TextureAtlasSprite> blockSprite =
-            resourceLocation -> spriteGetter.apply(new Material(TextureAtlas.LOCATION_BLOCKS, resourceLocation));
+    public BakedModel bake(TextureSlots textureSlots, ModelBaker baker, ModelState modelState,
+                           boolean hasAmbientOcclusion, boolean useBlockLight, ItemTransforms transforms) {
+        SpriteGetter spriteGetter = baker.sprites();
+        Function<String, TextureAtlasSprite> spriteLookup = str -> {
+            Material mat = textureSlots.getMaterial(str);
+            if (mat == null) return spriteGetter.reportMissingReference(str);
+            return spriteGetter.get(mat);
+        };
 
         try {
             MaterialManager manager = KRenderer.getDefault().materialManager();
             MaterialFinder finder = manager.materialFinder();
             MeshBuilder builder = KRenderer.getDefault().meshBuilder();
-            TextureAtlasSprite particle = blockSprite.apply(MissingTextureAtlasSprite.getLocation());
+            TextureAtlasSprite particle = spriteLookup.apply("__particle");
 
-            if (metadata.particle().isPresent()) {
-                particle = blockSprite.apply(metadata.particle().get());
-            } else {
-                for (MtlMaterial material : file.materials().values()) {
-                    if (material.diffuseTexture() != null) {
-                        particle = blockSprite.apply(material.diffuseTexture());
-                        break;
-                    }
-                }
-            }
+            Function<String, ObjMaterial> missingMaterial =
+                str -> new ObjMaterial(manager.missingMaterial(), spriteGetter.reportMissingReference(str), -1);
 
-            ObjMaterial defau =
-                new ObjMaterial(manager.missingMaterial(), blockSprite.apply(MissingTextureAtlasSprite.getLocation()),
-                    -1);
             Map<String, ObjMaterial> materials = new Object2ObjectLinkedOpenHashMap<>();
             for (MtlMaterial material : file.materials().values()) {
                 finder.clear();
@@ -99,8 +113,6 @@ public class ObjUnbakedModel implements UnbakedModel {
                 MaterialOverride override = metadata.getMaterial(material.name(), MaterialOverride.DEFAULT);
                 RenderMaterial renderMaterial = override
                     .toRenderMaterial(manager, finder.find());
-                ResourceLocation diffuseTexture = material.diffuseTexture() != null ? material.diffuseTexture() :
-                    MissingTextureAtlasSprite.getLocation();
 
                 int color;
                 if (override.colorFactor().isPresent()) {
@@ -113,13 +125,13 @@ public class ObjUnbakedModel implements UnbakedModel {
                 }
 
                 materials.put(material.name(),
-                    new ObjMaterial(renderMaterial, blockSprite.apply(diffuseTexture), color));
+                    new ObjMaterial(renderMaterial, spriteLookup.apply(material.name()), color));
             }
 
             QuadEmitter root = builder.emitter();
 
             Matrix4f transform = new Matrix4f();
-            transform.mul(state.getRotation().getMatrix());
+            transform.mul(modelState.getRotation().getMatrix());
             metadata.transformMatrix(transform);
 
             try (PooledQuadEmitter emitter = root.withTransformQuad(
@@ -136,7 +148,11 @@ public class ObjUnbakedModel implements UnbakedModel {
                         emitVertex(emitter, face.vertices()[2], 3);
                     }
 
-                    ObjMaterial material = materials.getOrDefault(face.materialName(), defau);
+                    ObjMaterial material = materials.get(face.materialName());
+                    if (material == null) {
+                        material = missingMaterial.apply(face.materialName());
+                    }
+
                     emitter.setQuadColor(material.color(), material.color(), material.color(), material.color());
                     emitter.spriteBake(material.sprite(), QuadEmitter.BAKE_ROTATE_NONE);
                     emitter.setMaterial(material.material());
@@ -149,7 +165,7 @@ public class ObjUnbakedModel implements UnbakedModel {
                 .wrap(new SimpleModelCore(builder.build(), particle, metadata.useAmbientOcclusion(), metadata.gui3d()));
         } catch (Exception e) {
             KObjLog.LOG.error("Error loading model '{}'", name, e);
-            return baker.bake(ModelBakery.MISSING_MODEL_LOCATION, state);
+            return baker.bake(ResourceLocation.withDefaultNamespace("error/missing"), modelState);
         }
     }
 

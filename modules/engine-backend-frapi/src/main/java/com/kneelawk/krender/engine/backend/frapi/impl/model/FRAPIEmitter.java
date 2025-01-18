@@ -7,8 +7,8 @@ import org.jetbrains.annotations.Nullable;
 
 import net.fabricmc.fabric.api.renderer.v1.material.RenderMaterial;
 import net.fabricmc.fabric.api.renderer.v1.mesh.QuadEmitter;
+import net.fabricmc.fabric.api.renderer.v1.mesh.QuadTransform;
 import net.fabricmc.fabric.api.renderer.v1.mesh.QuadView;
-import net.fabricmc.fabric.api.renderer.v1.render.RenderContext;
 
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -24,16 +24,18 @@ public class FRAPIEmitter implements QuadEmitter {
     private final Vector3f scratch3 = new Vector3f();
     private final Vector2f scratch2 = new Vector2f();
 
-    private RenderContext.QuadTransform[] transforms = new RenderContext.QuadTransform[0];
+    private QuadTransform[] transforms = new QuadTransform[0];
 
     public FRAPIEmitter(com.kneelawk.krender.engine.api.buffer.QuadEmitter emitter) {this.emitter = emitter;}
 
-    public void pushTransform(RenderContext.QuadTransform transform) {
-        RenderContext.QuadTransform[] newTransforms = Arrays.copyOf(transforms, transforms.length + 1);
+    @Override
+    public void pushTransform(QuadTransform transform) {
+        QuadTransform[] newTransforms = Arrays.copyOf(transforms, transforms.length + 1);
         newTransforms[transforms.length] = transform;
         transforms = newTransforms;
     }
 
+    @Override
     public void popTransform() {
         if (transforms.length > 0) {
             transforms = Arrays.copyOf(transforms, transforms.length - 1);
@@ -98,8 +100,8 @@ public class FRAPIEmitter implements QuadEmitter {
     }
 
     @Override
-    public QuadEmitter colorIndex(int colorIndex) {
-        emitter.setColorIndex(colorIndex);
+    public QuadEmitter tintIndex(int colorIndex) {
+        emitter.setTintIndex(colorIndex);
         return this;
     }
 
@@ -118,7 +120,7 @@ public class FRAPIEmitter implements QuadEmitter {
         emitter.setCullFace(quad.cullFace());
         emitter.setNominalFace(quad.nominalFace());
         emitter.setMaterial(ConversionUtils.toKRender(emitter.getRendererOrDefault(), quad.material()));
-        emitter.setColorIndex(quad.colorIndex());
+        emitter.setTintIndex(quad.tintIndex());
         emitter.setTag(quad.tag());
 
         for (int i = 0; i < 4; i++) {
@@ -157,7 +159,7 @@ public class FRAPIEmitter implements QuadEmitter {
 
     @Override
     public QuadEmitter emit() {
-        for (RenderContext.QuadTransform transform : transforms) {
+        for (QuadTransform transform : transforms) {
             if (!transform.transform(this)) return this;
         }
 
@@ -266,8 +268,8 @@ public class FRAPIEmitter implements QuadEmitter {
     }
 
     @Override
-    public int colorIndex() {
-        return emitter.getColorIndex();
+    public int tintIndex() {
+        return emitter.getTintIndex();
     }
 
     @Override

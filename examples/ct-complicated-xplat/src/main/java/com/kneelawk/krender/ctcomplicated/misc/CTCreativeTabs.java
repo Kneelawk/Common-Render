@@ -6,14 +6,14 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 
+import com.kneelawk.kregistry.core.api.KRegistrar;
 import com.kneelawk.krender.ctcomplicated.CTComplicated;
 import com.kneelawk.krender.ctcomplicated.block.CTBlocks;
-import com.kneelawk.krender.ctcomplicated.registry.Registrar;
 
 import static com.kneelawk.krender.ctcomplicated.CTConstants.tt;
 
 public class CTCreativeTabs {
-    private static final Registrar<CreativeModeTab> CREATIVE_TABS =
+    private static final KRegistrar<CreativeModeTab> CREATIVE_TABS =
         CTComplicated.REGISTRARS.get(Registries.CREATIVE_MODE_TAB);
 
     public static final Supplier<CreativeModeTab> CT_TAB = CREATIVE_TABS.register("ct_main",

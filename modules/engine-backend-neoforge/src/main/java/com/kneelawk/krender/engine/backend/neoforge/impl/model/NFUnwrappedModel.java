@@ -6,7 +6,6 @@ import org.jetbrains.annotations.UnknownNullability;
 
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
@@ -43,11 +42,6 @@ public class NFUnwrappedModel implements BakedModelCore<NFUnwrappedModel.Storage
     }
 
     @Override
-    public boolean isCustomRenderer() {
-        return model.isCustomRenderer();
-    }
-
-    @Override
     public TextureAtlasSprite getParticleIcon() {
         return model.getParticleIcon(ModelData.EMPTY);
     }
@@ -55,11 +49,6 @@ public class NFUnwrappedModel implements BakedModelCore<NFUnwrappedModel.Storage
     @Override
     public ItemTransforms getTransforms() {
         return model.getTransforms();
-    }
-
-    @Override
-    public ItemOverrides getOverrides() {
-        return model.getOverrides();
     }
 
     @Override
@@ -90,18 +79,17 @@ public class NFUnwrappedModel implements BakedModelCore<NFUnwrappedModel.Storage
     public void renderItem(QuadEmitter emitter, ModelItemContext ctx) {
         final MaterialFinder finder = emitter.getRendererOrDefault().materialManager().materialFinder();
 
-        for (BakedModel subModel : model.getRenderPasses(ctx.stack(), true)) {
-            for (RenderType renderType : subModel.getRenderTypes(ctx.stack(), true)) {
-                RenderMaterial material = finder.clear().fromVanilla(renderType).find();
+        for (BakedModel subModel : model.getRenderPasses(ctx.stack())) {
+            RenderType renderType = subModel.getRenderType(ctx.stack());
+            RenderMaterial material = finder.clear().fromVanilla(renderType).find();
 
-                for (int i = 0; i < DirectionIds.DIRECTION_COUNT; i++) {
-                    Direction face = DirectionIds.idToDirection(i);
+            for (int i = 0; i < DirectionIds.DIRECTION_COUNT; i++) {
+                Direction face = DirectionIds.idToDirection(i);
 
-                    // it's deprecated, but apparently it's still used by ItemRenderer???
-                    for (BakedQuad quad : model.getQuads(null, face, ctx.randomSupplier().get())) {
-                        emitter.fromVanilla(quad, material, face);
-                        emitter.emit();
-                    }
+                // it's deprecated, but apparently it's still used by ItemRenderer???
+                for (BakedQuad quad : model.getQuads(null, face, ctx.randomSupplier().get())) {
+                    emitter.fromVanilla(quad, material, face);
+                    emitter.emit();
                 }
             }
         }

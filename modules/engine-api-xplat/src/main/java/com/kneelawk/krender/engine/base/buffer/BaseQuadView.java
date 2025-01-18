@@ -17,7 +17,7 @@ import com.kneelawk.krender.engine.api.util.ColorUtils;
 import com.kneelawk.krender.engine.base.BaseKRendererApi;
 
 import static com.kneelawk.krender.engine.base.buffer.BaseQuadFormat.HEADER_BITS;
-import static com.kneelawk.krender.engine.base.buffer.BaseQuadFormat.HEADER_COLOR_INDEX;
+import static com.kneelawk.krender.engine.base.buffer.BaseQuadFormat.HEADER_TINT_INDEX;
 import static com.kneelawk.krender.engine.base.buffer.BaseQuadFormat.HEADER_FACE_NORMAL;
 import static com.kneelawk.krender.engine.base.buffer.BaseQuadFormat.HEADER_STRIDE;
 import static com.kneelawk.krender.engine.base.buffer.BaseQuadFormat.HEADER_TAG;
@@ -142,7 +142,7 @@ public class BaseQuadView implements QuadView {
             target.setCullFace(getCullFace());
             target.setNominalFace(getNominalFace());
             target.setMaterial(target.getRendererOrDefault().converter().toAssociated(getMaterial()));
-            target.setColorIndex(getColorIndex());
+            target.setTintIndex(getTintIndex());
             target.setTag(getTag());
 
             for (int i = 0; i < 4; i++) {
@@ -319,8 +319,8 @@ public class BaseQuadView implements QuadView {
     }
 
     @Override
-    public int getColorIndex() {
-        return data[baseIndex + HEADER_COLOR_INDEX];
+    public int getTintIndex() {
+        return data[baseIndex + HEADER_TINT_INDEX];
     }
 
     @Override
@@ -345,10 +345,9 @@ public class BaseQuadView implements QuadView {
         final RenderMaterial material = getMaterial();
 
         toVanilla(quad, 0);
-        int tintIndex = material.isColorIndexDisabled() ? -1 : getColorIndex();
         boolean shade = !material.isDiffuseDisabled();
         int emission = material.isEmissive() ? 15 : 0;
-        return new BakedQuad(quad, tintIndex, getLightFace(), sprite, shade, emission);
+        return new BakedQuad(quad, getTintIndex(), getLightFace(), sprite, shade, emission);
     }
 
     @Override

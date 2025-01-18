@@ -2,7 +2,6 @@ package com.kneelawk.krender.engine.backend.frapi.impl.model;
 
 import org.jetbrains.annotations.UnknownNullability;
 
-import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
@@ -48,8 +47,8 @@ public class FRAPIUnwrappedModel implements BakedModelCore<FRAPIUnwrappedModel.Q
     @Override
     public FRAPIUnwrappedModel.@UnknownNullability Quads getBlockKey(ModelBlockContext ctx) {
         MeshBuilder builder = KRenderer.getDefault().meshBuilder();
-        bakedModel.emitBlockQuads(ctx.level(), ctx.state(), ctx.pos(), ctx.random(),
-            new FRAPIBlockContext(ctx, builder.emitter()));
+        bakedModel.emitBlockQuads(new FRAPIEmitter(builder.emitter()), ctx.level(), ctx.state(), ctx.pos(),
+            ctx.random(), d -> false);
         return new Quads(builder.build());
     }
 
@@ -60,7 +59,7 @@ public class FRAPIUnwrappedModel implements BakedModelCore<FRAPIUnwrappedModel.Q
 
     @Override
     public void renderItem(QuadEmitter renderTo, ModelItemContext ctx) {
-        bakedModel.emitItemQuads(ctx.stack(), ctx.randomSupplier(), new FRAPIItemContext(ctx, renderTo));
+        bakedModel.emitItemQuads(new FRAPIEmitter(renderTo), ctx.randomSupplier());
     }
 
     public record Quads(Mesh mesh) {}
