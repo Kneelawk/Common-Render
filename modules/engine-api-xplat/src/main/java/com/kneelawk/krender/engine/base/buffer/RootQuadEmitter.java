@@ -38,12 +38,23 @@ public abstract class RootQuadEmitter extends BaseQuadEmitter {
     }
 
     @Override
-    public <C> PooledQuadEmitter withTransformQuad(@UnknownNullability C context, QuadTransform<C> transform) {
-        return transformStack.getTransform(context, transform, this);
+    public PooledQuadEmitter withTransformQuad(QuadTransform<?>[] transforms, @UnknownNullability Object[] contexts) {
+        return transformStack.getTransforms(transforms, contexts, this);
     }
 
     @Override
-    public <C> PooledVertexEmitter withTransformVertex(@UnknownNullability C context, QuadTransform<C> transform) {
-        return transformStack.getTransform(context, transform, this);
+    public PooledVertexEmitter withTransformVertex(QuadTransform<?>[] transforms,
+                                                   @UnknownNullability Object[] contexts) {
+        return transformStack.getTransforms(transforms, contexts, this);
+    }
+
+    @Override
+    public <C> PooledQuadEmitter withTransformQuad(QuadTransform<C> transform, @UnknownNullability C context) {
+        return transformStack.getTransform(transform, context, this);
+    }
+
+    @Override
+    public <C> PooledVertexEmitter withTransformVertex(QuadTransform<C> transform, @UnknownNullability C context) {
+        return transformStack.getTransform(transform, context, this);
     }
 }

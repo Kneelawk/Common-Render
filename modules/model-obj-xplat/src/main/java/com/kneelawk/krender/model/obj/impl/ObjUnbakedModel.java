@@ -3,8 +3,6 @@ package com.kneelawk.krender.model.obj.impl;
 import java.util.Map;
 import java.util.function.Function;
 
-import org.jetbrains.annotations.Nullable;
-
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 
 import org.joml.Matrix4f;
@@ -135,8 +133,8 @@ public class ObjUnbakedModel implements UnbakedModel {
             metadata.transformMatrix(transform);
 
             try (PooledQuadEmitter emitter = root.withTransformQuad(
-                new MatrixQuadTransform.Options(transform, metadata.transformGranularity()),
-                MatrixQuadTransform.getInstance())) {
+                MatrixQuadTransform.getInstance(), new MatrixQuadTransform.Options(transform, metadata.transformGranularity())
+            )) {
                 for (ObjFace face : file.faces()) {
                     int vertCount = Math.min(face.vertices().length, 4);
                     for (int i = 0; i < vertCount; i++) {

@@ -41,11 +41,10 @@ public class ModelCoreSpecialRenderer implements SpecialModelRenderer<ModelCoreS
         QuadEmitter emitter =
             renderer.converter().fromVertexConsumerProvider(mat -> bufferSource.getBuffer(getItemRenderType(mat)));
 
-        try (PooledQuadEmitter pooled = emitter.withTransformQuad(new PoseQuadTransform.Options(poseStack.last()),
-            PoseQuadTransform.getInstance());
-             PooledQuadEmitter pooled2 = pooled.withTransformQuad(new LightingQuadTransform.Options(packedLight),
-                 LightingQuadTransform.getInstance())) {
-            input.core().renderItem(pooled2, new ModelItemContext(input.stack(), () -> {
+        try (PooledQuadEmitter pooled = emitter.withTransformQuad(PoseQuadTransform.getInstance(),
+            new PoseQuadTransform.Options(poseStack.last()), LightingQuadTransform.getInstance(),
+            new LightingQuadTransform.Options(packedLight))) {
+            input.core().renderItem(pooled, new ModelItemContext(input.stack(), () -> {
                 random.setSeed(42);
                 return random;
             }));
