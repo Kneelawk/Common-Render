@@ -13,3 +13,7 @@ submodule {
 kpublish {
     createPublication()
 }
+
+dependencies {
+    testRuntimeOnly("io.github.llamalad7:mixinextras-neoforge:0.4.1")
+}
