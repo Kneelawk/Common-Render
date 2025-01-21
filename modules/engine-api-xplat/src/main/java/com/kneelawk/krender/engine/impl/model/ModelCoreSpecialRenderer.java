@@ -5,8 +5,6 @@ import org.jetbrains.annotations.Nullable;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.special.SpecialModelRenderer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -15,7 +13,6 @@ import net.minecraft.world.item.ItemStack;
 import com.kneelawk.krender.engine.api.KRenderer;
 import com.kneelawk.krender.engine.api.buffer.PooledQuadEmitter;
 import com.kneelawk.krender.engine.api.buffer.QuadEmitter;
-import com.kneelawk.krender.engine.api.material.RenderMaterial;
 import com.kneelawk.krender.engine.api.model.BakedModelCore;
 import com.kneelawk.krender.engine.api.model.ModelItemContext;
 import com.kneelawk.krender.engine.api.util.transform.LightingQuadTransform;
@@ -38,8 +35,7 @@ public class ModelCoreSpecialRenderer implements SpecialModelRenderer<ModelCoreS
         KRenderer renderer = KRenderer.tryGetDefault();
         if (renderer == null) return;
 
-        QuadEmitter emitter =
-            renderer.converter().fromVertexConsumerProvider(mat -> bufferSource.getBuffer(getItemRenderType(mat)));
+        QuadEmitter emitter = renderer.converter().fromItemMultiBufferSource(bufferSource);
 
         try (PooledQuadEmitter pooled = emitter.withTransformQuad(PoseQuadTransform.getInstance(),
             new PoseQuadTransform.Options(poseStack.last()), LightingQuadTransform.getInstance(),
@@ -57,12 +53,4 @@ public class ModelCoreSpecialRenderer implements SpecialModelRenderer<ModelCoreS
     }
 
     public record Input(BakedModelCore<?> core, ItemStack stack) {}
-
-    public static RenderType getItemRenderType(RenderMaterial material) {
-        return switch (material.getBlendMode()) {
-            case DEFAULT, TRANSLUCENT -> Sheets.translucentItemSheet();
-            case SOLID -> Sheets.solidBlockSheet();
-            case CUTOUT_MIPPED, CUTOUT -> Sheets.cutoutBlockSheet();
-        };
-    }
 }
