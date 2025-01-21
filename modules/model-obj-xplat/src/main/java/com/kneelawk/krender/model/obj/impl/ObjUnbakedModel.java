@@ -122,8 +122,10 @@ public class ObjUnbakedModel implements UnbakedModel {
                     color = -1;
                 }
 
-                materials.put(material.name(),
-                    new ObjMaterial(renderMaterial, spriteLookup.apply(material.name()), color));
+                if (material.diffuseTexture() != null || !"none".equals(material.name())) {
+                    materials.put(material.name(),
+                        new ObjMaterial(renderMaterial, spriteLookup.apply(material.name()), color));
+                }
             }
 
             QuadEmitter root = builder.emitter();
@@ -133,7 +135,8 @@ public class ObjUnbakedModel implements UnbakedModel {
             metadata.transformMatrix(transform);
 
             try (PooledQuadEmitter emitter = root.withTransformQuad(
-                MatrixQuadTransform.getInstance(), new MatrixQuadTransform.Options(transform, metadata.transformGranularity())
+                MatrixQuadTransform.getInstance(),
+                new MatrixQuadTransform.Options(transform, metadata.transformGranularity())
             )) {
                 for (ObjFace face : file.faces()) {
                     int vertCount = Math.min(face.vertices().length, 4);
