@@ -47,7 +47,7 @@ public class RenderTypeCollector {
 
         @Override
         public void emitDirectly() {
-            RenderType vanilla = getMaterial().toVanilla();
+            RenderType vanilla = getMaterial().toVanillaBlock();
             if (vanilla == null) {
                 // deprecated vanilla path -- may be removed some day
                 ChunkRenderTypeSet types = ItemBlockRenderTypes.getRenderLayers(state);

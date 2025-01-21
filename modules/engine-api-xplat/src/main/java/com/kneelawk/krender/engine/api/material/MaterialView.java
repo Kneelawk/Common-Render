@@ -36,9 +36,13 @@ public interface MaterialView extends RendererDependent {
     TriState getAmbientOcclusionMode();
 
     /**
-     * Makes a best-effort attempt to convert this material view to a {@link RenderType}.
+     * Makes a best-effort attempt to convert this material view to a {@link RenderType} suitable for rendering terrain.
      *
      * @return the vanilla render type closest to this material if any.
      */
-    @Nullable RenderType toVanilla();
+    @Nullable RenderType toVanillaBlock();
+    
+    @Nullable RenderType toVanillaItem();
+    
+    @Nullable RenderType toVanillaEntity();
 }

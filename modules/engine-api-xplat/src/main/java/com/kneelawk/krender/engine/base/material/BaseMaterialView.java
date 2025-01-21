@@ -3,6 +3,8 @@ package com.kneelawk.krender.engine.base.material;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.Sheets;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 
 import com.kneelawk.krender.engine.api.TriState;
 import com.kneelawk.krender.engine.api.material.BlendMode;
@@ -52,7 +54,29 @@ public abstract class BaseMaterialView implements MaterialView, BaseMaterialView
     }
 
     @Override
-    public @Nullable RenderType toVanilla() {
+    public @Nullable RenderType toVanillaBlock() {
         return getBlendMode().blockRenderType;
+    }
+
+    @Override
+    public @Nullable RenderType toVanillaItem() {
+        return switch (getBlendMode()) {
+            case DEFAULT -> null;
+            case SOLID -> Sheets.solidBlockSheet();
+            case CUTOUT_MIPPED, CUTOUT -> Sheets.cutoutBlockSheet();
+            case TRANSLUCENT -> Sheets.translucentItemSheet();
+        };
+    }
+
+    @Override
+    public @Nullable RenderType toVanillaEntity() {
+        if (isEmissive()) return RenderType.entityTranslucentEmissive(TextureAtlas.LOCATION_BLOCKS);
+
+        return switch (getBlendMode()) {
+            case DEFAULT -> null;
+            case SOLID -> RenderType.entitySolid(TextureAtlas.LOCATION_BLOCKS);
+            case CUTOUT_MIPPED, CUTOUT -> RenderType.entityCutoutNoCull(TextureAtlas.LOCATION_BLOCKS);
+            case TRANSLUCENT -> RenderType.entityTranslucent(TextureAtlas.LOCATION_BLOCKS);
+        };
     }
 }

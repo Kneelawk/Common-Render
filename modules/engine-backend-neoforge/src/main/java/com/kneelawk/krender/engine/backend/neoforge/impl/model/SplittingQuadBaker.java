@@ -108,7 +108,7 @@ public class SplittingQuadBaker {
             final TextureAtlasSprite sprite = finder.find(this);
 
             final Direction cullFace = getCullFace();
-            final RenderType renderType = Objects.requireNonNullElse(getMaterial().toVanilla(), DEFAULT_RENDER_TYPE);
+            final RenderType renderType = Objects.requireNonNullElse(getMaterial().toVanillaBlock(), DEFAULT_RENDER_TYPE);
 
             renderTypes.add(renderType);
 

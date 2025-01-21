@@ -68,6 +68,7 @@ public abstract class BaseMaterialFinder extends BaseMaterialView implements Mat
     @Override
     public MaterialFinder fromVanilla(RenderType type) {
         clear();
+        // FIXME: only supports terrain render types
         if (type == RenderType.solid()) {
             setBlendMode(BlendMode.SOLID);
         } else if (type == RenderType.cutout()) {

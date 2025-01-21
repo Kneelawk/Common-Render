@@ -79,7 +79,7 @@ public class FilteringQuadBaker {
         private boolean checkRenderType() {
             if (renderType == null) return true;
 
-            RenderType quadType = getMaterial().toVanilla();
+            RenderType quadType = getMaterial().toVanillaBlock();
             if (quadType == null) {
                 return ItemBlockRenderTypes.getRenderLayers(state).contains(renderType);
             } else {

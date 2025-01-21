@@ -6,6 +6,8 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.Sheets;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 
 import com.kneelawk.krender.engine.api.buffer.QuadEmitter;
 import com.kneelawk.krender.engine.api.buffer.QuadSink;
@@ -51,15 +53,43 @@ public interface TypeConverter {
     QuadEmitter fromVertexConsumer(VertexConsumer consumer);
 
     /**
-     * Creates a quad emitter that wraps the given {@link MultiBufferSource}.
+     * Creates a quad emitter that wraps the given {@link MultiBufferSource} for emitting terrain quads.
      *
      * @param source the multi-buffer source to wrap.
      * @return the quad emitter for the given multi-buffer source.
      */
-    default QuadEmitter fromMultiBufferSource(MultiBufferSource source) {
+    default QuadEmitter fromBlockMultiBufferSource(MultiBufferSource source) {
         return fromVertexConsumerProvider(mat -> {
-            RenderType type = mat.toVanilla();
+            RenderType type = mat.toVanillaBlock();
             if (type == null) return source.getBuffer(RenderType.cutout());
+            return source.getBuffer(type);
+        });
+    }
+
+    /**
+     * Creates a quad emitter that wraps the given {@link MultiBufferSource} for emitting item quads.
+     *
+     * @param source the multi-buffer source to wrap.
+     * @return the quad emitter for the given multi-buffer source.
+     */
+    default QuadEmitter fromItemMultiBufferSource(MultiBufferSource source) {
+        return fromVertexConsumerProvider(mat -> {
+            RenderType type = mat.toVanillaItem();
+            if (type == null) return source.getBuffer(Sheets.cutoutBlockSheet());
+            return source.getBuffer(type);
+        });
+    }
+
+    /**
+     * Creates a quad emitter that wraps the given {@link MultiBufferSource} for emitting entity quads.
+     *
+     * @param source the multi-buffer source to wrap.
+     * @return the quad emitter for the given multi-buffer source.
+     */
+    default QuadEmitter fromEntityMultiBufferSource(MultiBufferSource source) {
+        return fromVertexConsumerProvider(mat -> {
+            RenderType type = mat.toVanillaEntity();
+            if (type == null) return source.getBuffer(RenderType.entityTranslucent(TextureAtlas.LOCATION_BLOCKS));
             return source.getBuffer(type);
         });
     }
