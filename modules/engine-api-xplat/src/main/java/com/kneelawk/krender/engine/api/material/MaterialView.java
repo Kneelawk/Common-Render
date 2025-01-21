@@ -41,8 +41,18 @@ public interface MaterialView extends RendererDependent {
      * @return the vanilla render type closest to this material if any.
      */
     @Nullable RenderType toVanillaBlock();
-    
+
+    /**
+     * Makes a best-effort attempt to convert this material view into a {@link RenderType} suitable for rendering items.
+     *
+     * @return the vanilla render type closest to this material if any.
+     */
     @Nullable RenderType toVanillaItem();
-    
+
+    /**
+     * Makes a best-effort attempt to convert this material view into a {@link RenderType} suitable for rendering entities.
+     *
+     * @return the vanilla render type closest to this material if any.
+     */
     @Nullable RenderType toVanillaEntity();
 }
