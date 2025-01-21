@@ -79,6 +79,7 @@ val xplat = true
 val mojmap = true
 val fabric = true
 val neoforge = true
+val moddev = true
 
 module(xplat, "engine-api-xplat")
 module(mojmap, "engine-api-xplat-mojmap")
@@ -112,6 +113,9 @@ module(xplat, "model-gltf-xplat")
 module(mojmap, "model-gltf-xplat-mojmap")
 module(fabric, "model-gltf-fabric")
 module(neoforge, "model-gltf-neoforge")
+
+module(fabric, "rendertype-loom")
+module(moddev, "rendertype-moddev")
 
 example(xplat, "ct-complicated-xplat")
 example(fabric, "ct-complicated-fabric")

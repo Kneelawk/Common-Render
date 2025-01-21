@@ -1,0 +1,21 @@
+modLoader = "javafml"
+loaderVersion = "[1,)"
+license = "MIT"
+
+[[accessTransformers]]
+file = "META-INF/accesstransformer.cfg"
+
+[[mods]]
+modId = "${mod_id}"
+version = "${version}"
+displayName = "KRender RenderType"
+authors = "Kneelawk"
+description = "RenderType accessors."
+logoFile = "assets/${mod_id}/icon.png"
+
+[[dependencies.${mod_id}]]
+modId = "neoforge"
+type = "REQUIRED"
+versionRange = "[21.0,)"
+ordering = "NONE"
+side = "BOTH"
