@@ -12,7 +12,3 @@ submodule {
 kpublish {
     createPublication()
 }
-
-dependencies {
-    implementation(project(":rendertype-loom", configuration = "namedElements"))
-}

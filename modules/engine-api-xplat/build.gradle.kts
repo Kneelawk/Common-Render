@@ -15,15 +15,3 @@ submodule {
 kpublish {
     createPublication("intermediary")
 }
-
-dependencies {
-    implementation(project(":rendertype-loom", configuration = "namedElements"))
-}
-
-loom {
-    mods {
-        register("krender_rendertype") {
-            sourceSet(project(":rendertype-loom").sourceSets.main.get())
-        }
-    }
-}
