@@ -13,3 +13,8 @@ submodule {
 kpublish {
     createPublication()
 }
+
+dependencies {
+    implementation(accessTransformers(project(":rendertype-moddev"))!!)
+    accessTransformersElements(project(":rendertype-moddev"))
+}
