@@ -7,6 +7,7 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.core.Direction;
 
 import com.kneelawk.krender.engine.api.buffer.QuadView;
+import com.kneelawk.krender.engine.api.material.MaterialManager;
 import com.kneelawk.krender.engine.api.material.RenderMaterial;
 import com.kneelawk.krender.engine.api.util.DirectionIds;
 import com.kneelawk.krender.engine.base.material.BaseMaterialManagerApi;
@@ -269,12 +270,10 @@ public final class BaseQuadFormat {
      *
      * @param bits    the header bits.
      * @param manager the material manager.
-     * @param <M>     the type of render material implementation used.
      * @return the render material.
      */
-    public static <M extends BaseMaterialViewApi & RenderMaterial> M getMaterial(int bits,
-                                                                                 BaseMaterialManagerApi<M> manager) {
-        return manager.getMaterialByBits((bits >>> MATERIAL_SHIFT) & BaseMaterialViewApi.FULL_BIT_MASK);
+    public static RenderMaterial getMaterial(int bits, MaterialManager manager) {
+        return manager.materialByIntegerId((bits >>> MATERIAL_SHIFT) & BaseMaterialViewApi.FULL_BIT_MASK);
     }
 
     /**
@@ -284,7 +283,7 @@ public final class BaseQuadFormat {
      * @param material the new render material.
      * @return the new header bits.
      */
-    public static int setMaterial(int bits, BaseMaterialViewApi material) {
-        return (bits & MATERIAL_INVERSE_MASK) | (material.getBits() << MATERIAL_SHIFT);
+    public static int setMaterial(int bits, RenderMaterial material) {
+        return (bits & MATERIAL_INVERSE_MASK) | (material.integerId() << MATERIAL_SHIFT);
     }
 }
