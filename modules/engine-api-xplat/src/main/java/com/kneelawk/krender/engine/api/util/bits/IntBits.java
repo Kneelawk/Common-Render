@@ -83,7 +83,7 @@ public class IntBits implements Bits {
      * @param bitCount the number of bits in the data.
      * @return a new {@link IntBits} for the given bits.
      */
-    public static IntBits ofINoSplit(int shift, int bitCount) {
+    public static IntBits ofNoSplitI(int shift, int bitCount) {
         return ofNoSplit(shift, bitCount, 32);
     }
 
@@ -94,7 +94,7 @@ public class IntBits implements Bits {
      * @param bitCount the number of bits in the data.
      * @return a new {@link IntBits} for the given bits.
      */
-    public static IntBits ofJNoSplit(int shift, int bitCount) {
+    public static IntBits ofNoSplitJ(int shift, int bitCount) {
         return ofNoSplit(shift, bitCount, 64);
     }
 
@@ -151,7 +151,7 @@ public class IntBits implements Bits {
      * @param bitCount the number of bits in the data.
      * @return a new {@link IntBits} for the given bits.
      */
-    public static IntBits ofINoSplit(Bits shift, int bitCount) {
+    public static IntBits ofNoSplitI(Bits shift, int bitCount) {
         return ofNoSplit(shift, bitCount, 32);
     }
 
@@ -162,7 +162,7 @@ public class IntBits implements Bits {
      * @param bitCount the number of bits in the data.
      * @return a new {@link IntBits} for the given bits.
      */
-    public static IntBits ofJNoSplit(Bits shift, int bitCount) {
+    public static IntBits ofNoSplitJ(Bits shift, int bitCount) {
         return ofNoSplit(shift, bitCount, 64);
     }
 

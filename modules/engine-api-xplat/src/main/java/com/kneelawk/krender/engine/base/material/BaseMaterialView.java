@@ -6,9 +6,9 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 
-import com.kneelawk.krender.engine.api.TriState;
 import com.kneelawk.krender.engine.api.material.BlendMode;
 import com.kneelawk.krender.engine.api.material.MaterialView;
+import com.kneelawk.krender.engine.api.util.TriState;
 
 /**
  * Base implementation of {@link MaterialView} that can be used for platforms that don't have an existing implementation.
@@ -18,6 +18,11 @@ public abstract class BaseMaterialView implements MaterialView, BaseMaterialView
      * This material's bits.
      */
     protected int bits;
+
+    /**
+     * This material view's material format.
+     */
+    protected BaseMaterialFormat format = BaseMaterialFormat.get(getRendererOrDefault());
 
     /**
      * Creates a new {@link BaseMaterialView} with the given bits.
@@ -35,22 +40,22 @@ public abstract class BaseMaterialView implements MaterialView, BaseMaterialView
 
     @Override
     public BlendMode getBlendMode() {
-        return BLEND_MODES[(bits & BLEND_MODE_MASK) >>> BLEND_MODE_BIT_OFFSET];
+        return format.blendMode.getI(bits);
     }
 
     @Override
     public boolean isEmissive() {
-        return (bits & EMISSIVE_FLAG) != 0;
+        return format.emissive.getI(bits);
     }
 
     @Override
     public boolean isDiffuseDisabled() {
-        return (bits & DIFFUSE_FLAG) != 0;
+        return format.diffuseDisabled.getI(bits);
     }
 
     @Override
     public TriState getAmbientOcclusionMode() {
-        return TRI_STATES[(bits & AO_MASK) >>> AO_BIT_OFFSET];
+        return format.ambientOcclusion.getI(bits);
     }
 
     @Override

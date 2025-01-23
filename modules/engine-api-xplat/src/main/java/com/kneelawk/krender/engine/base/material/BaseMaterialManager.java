@@ -10,7 +10,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.resources.ResourceLocation;
 
 import com.kneelawk.krender.engine.api.KRenderer;
-import com.kneelawk.krender.engine.api.TriState;
+import com.kneelawk.krender.engine.api.util.TriState;
 import com.kneelawk.krender.engine.api.material.MaterialFinder;
 import com.kneelawk.krender.engine.api.material.MaterialManager;
 import com.kneelawk.krender.engine.api.material.RenderMaterial;

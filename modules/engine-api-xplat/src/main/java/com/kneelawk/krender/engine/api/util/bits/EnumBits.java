@@ -112,7 +112,7 @@ public class EnumBits<E extends Enum<E>> implements Bits {
      * @param <E>       the type of enum managed.
      * @return a new {@link EnumBits} for the given bits.
      */
-    public static <E extends Enum<E>> EnumBits<E> ofINoSplit(int shift, Class<E> enumClass) {
+    public static <E extends Enum<E>> EnumBits<E> ofNoSplitI(int shift, Class<E> enumClass) {
         return of(shift, enumClass, 32);
     }
 
@@ -124,7 +124,7 @@ public class EnumBits<E extends Enum<E>> implements Bits {
      * @param <E>       the type of enum managed.
      * @return a new {@link EnumBits} for the given bits.
      */
-    public static <E extends Enum<E>> EnumBits<E> ofJNoSplit(int shift, Class<E> enumClass) {
+    public static <E extends Enum<E>> EnumBits<E> ofNoSplitJ(int shift, Class<E> enumClass) {
         return of(shift, enumClass, 64);
     }
 
@@ -186,7 +186,7 @@ public class EnumBits<E extends Enum<E>> implements Bits {
      * @param <E>       the type of enum managed.
      * @return a new {@link EnumBits} for the given bits.
      */
-    public static <E extends Enum<E>> EnumBits<E> ofINoSplit(Bits shift, Class<E> enumClass) {
+    public static <E extends Enum<E>> EnumBits<E> ofNoSplitI(Bits shift, Class<E> enumClass) {
         return ofNoSplit(shift.fullShift() + shift.bitCount(), enumClass, 32);
     }
 
@@ -198,7 +198,7 @@ public class EnumBits<E extends Enum<E>> implements Bits {
      * @param <E>       the type of enum managed.
      * @return a new {@link EnumBits} for the given bits.
      */
-    public static <E extends Enum<E>> EnumBits<E> ofJNoSplit(Bits shift, Class<E> enumClass) {
+    public static <E extends Enum<E>> EnumBits<E> ofNoSplitJ(Bits shift, Class<E> enumClass) {
         return ofNoSplit(shift.fullShift() + shift.bitCount(), enumClass, 64);
     }
 

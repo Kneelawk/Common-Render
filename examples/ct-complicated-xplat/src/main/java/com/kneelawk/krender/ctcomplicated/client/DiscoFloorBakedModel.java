@@ -5,7 +5,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
 
 import com.kneelawk.krender.engine.api.KRenderer;
-import com.kneelawk.krender.engine.api.TriState;
+import com.kneelawk.krender.engine.api.util.TriState;
 import com.kneelawk.krender.engine.api.buffer.QuadEmitter;
 import com.kneelawk.krender.engine.api.material.BlendMode;
 import com.kneelawk.krender.engine.api.material.RenderMaterial;

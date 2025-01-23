@@ -10,6 +10,7 @@ import com.kneelawk.krender.engine.api.material.MaterialManager;
 import com.kneelawk.krender.engine.api.mesh.MeshBuilder;
 import com.kneelawk.krender.engine.api.model.BakedModelFactory;
 import com.kneelawk.krender.engine.api.model.BakedModelUnwrapper;
+import com.kneelawk.krender.engine.api.texture.MaterialTextureManager;
 import com.kneelawk.krender.engine.impl.backend.BackendManager;
 
 /**
@@ -81,9 +82,12 @@ public interface KRenderer {
     MaterialManager materialManager();
 
     /**
+     * {@return this backend's texture manager}
+     */
+    MaterialTextureManager textureManager();
+
+    /**
      * {@return this backend's type converter}
      */
     TypeConverter converter();
-    
-    
 }

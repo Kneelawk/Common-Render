@@ -11,6 +11,77 @@ public class BooleanBits implements Bits {
     private final long inverseMask;
     private final int inverseMaskI;
 
+    /**
+     * Creates a new boolean bit mask with no shift.
+     *
+     * @return a new {@link BooleanBits} for the given flag.
+     */
+    public static BooleanBits of() {
+        return new BooleanBits(0, 64);
+    }
+
+    /**
+     * Creates a new boolean bit mask with the given shift.
+     *
+     * @param shift      the number of bits to shift the boolean flag by.
+     * @param unitLength the number of bits in a unit (32 for int units, 64 for long units).
+     * @return a new {@link BooleanBits} for the given flag.
+     */
+    public static BooleanBits of(int shift, int unitLength) {
+        return new BooleanBits(shift, unitLength);
+    }
+
+    /**
+     * Creates a new boolean bit mask with the given shift for int units.
+     *
+     * @param shift the number of bits to shift the boolean flag by.
+     * @return a new {@link BooleanBits} for the given flag.
+     */
+    public static BooleanBits ofI(int shift) {
+        return of(shift, 32);
+    }
+
+    /**
+     * Creates a new boolean bit mask with the given shift for long units.
+     *
+     * @param shift the number of bits to shift the boolean flag by.
+     * @return a new {@link BooleanBits} for the given flag.
+     */
+    public static BooleanBits ofJ(int shift) {
+        return of(shift, 64);
+    }
+
+    /**
+     * Creates a new boolean bit mask shifted after the given bit mask.
+     *
+     * @param shift      the bit mask for this flag to be after.
+     * @param unitLength the number of bits in a unit (32 for int units, 64 for long units).
+     * @return a new {@link BooleanBits} for the given flag.
+     */
+    public static BooleanBits of(Bits shift, int unitLength) {
+        return new BooleanBits(shift.fullShift() + shift.bitCount(), unitLength);
+    }
+
+    /**
+     * Creates a new boolean bit mask shifted after the given bit mask for int units.
+     *
+     * @param shift the bit mask for this flag to be after.
+     * @return a new {@link BooleanBits} for the given flag.
+     */
+    public static BooleanBits ofI(Bits shift) {
+        return of(shift, 32);
+    }
+
+    /**
+     * Creates a new boolean bit mask shifted after the given bit mask for long units.
+     *
+     * @param shift the bit mask for this flag to be after.
+     * @return a new {@link BooleanBits} for the given flag.
+     */
+    public static BooleanBits ofJ(Bits shift) {
+        return of(shift, 64);
+    }
+
     private BooleanBits(int fullShift, int unitLength) {
         this.fullShift = fullShift;
         this.unitIndex = fullShift / unitLength;

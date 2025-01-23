@@ -5,7 +5,7 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.client.renderer.RenderType;
 
 import com.kneelawk.krender.engine.api.RendererDependent;
-import com.kneelawk.krender.engine.api.TriState;
+import com.kneelawk.krender.engine.api.util.TriState;
 
 /**
  * Provides access to the values of a material.

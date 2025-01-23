@@ -2,10 +2,10 @@ package com.kneelawk.krender.engine.base.material;
 
 import net.minecraft.client.renderer.RenderType;
 
-import com.kneelawk.krender.engine.api.TriState;
 import com.kneelawk.krender.engine.api.material.BlendMode;
 import com.kneelawk.krender.engine.api.material.MaterialFinder;
 import com.kneelawk.krender.engine.api.material.MaterialView;
+import com.kneelawk.krender.engine.api.util.TriState;
 
 /**
  * Base implementation of {@link MaterialFinder} that can be used for platforms that don't have an existing implementation.
@@ -31,25 +31,25 @@ public abstract class BaseMaterialFinder extends BaseMaterialView implements Mat
 
     @Override
     public MaterialFinder setBlendMode(BlendMode blendMode) {
-        bits = (bits & ~BLEND_MODE_MASK) | (blendMode.ordinal() << BLEND_MODE_BIT_OFFSET);
+        bits = format.blendMode.setI(bits, blendMode);
         return this;
     }
 
     @Override
     public MaterialFinder setEmissive(boolean emissive) {
-        bits = emissive ? (bits | EMISSIVE_FLAG) : (bits & ~EMISSIVE_FLAG);
+        bits = format.emissive.setI(bits, emissive);
         return this;
     }
 
     @Override
     public MaterialFinder setDiffuseDisabled(boolean disabled) {
-        bits = disabled ? (bits | DIFFUSE_FLAG) : (bits & ~DIFFUSE_FLAG);
+        bits = format.diffuseDisabled.setI(bits, disabled);
         return this;
     }
 
     @Override
     public MaterialFinder setAmbientOcclusionMode(TriState mode) {
-        bits = (bits & ~AO_MASK) | (mode.ordinal() << AO_BIT_OFFSET);
+        bits = format.ambientOcclusion.setI(bits, mode);
         return this;
     }
 

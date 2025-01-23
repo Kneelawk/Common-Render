@@ -3,7 +3,7 @@ package com.kneelawk.krender.engine.backend.frapi.api;
 import net.fabricmc.fabric.api.renderer.v1.Renderer;
 
 import com.kneelawk.krender.engine.api.KRenderer;
-import com.kneelawk.krender.engine.api.TriState;
+import com.kneelawk.krender.engine.api.util.TriState;
 import com.kneelawk.krender.engine.api.material.BlendMode;
 import com.kneelawk.krender.engine.api.material.RenderMaterial;
 

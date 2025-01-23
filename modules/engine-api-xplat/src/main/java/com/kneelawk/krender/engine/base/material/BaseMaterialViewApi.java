@@ -2,7 +2,7 @@ package com.kneelawk.krender.engine.base.material;
 
 import net.minecraft.util.Mth;
 
-import com.kneelawk.krender.engine.api.TriState;
+import com.kneelawk.krender.engine.api.util.TriState;
 import com.kneelawk.krender.engine.api.material.BlendMode;
 import com.kneelawk.krender.engine.api.material.MaterialView;
 

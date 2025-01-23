@@ -2,7 +2,7 @@ package com.kneelawk.krender.engine.api.material;
 
 import net.minecraft.client.renderer.RenderType;
 
-import com.kneelawk.krender.engine.api.TriState;
+import com.kneelawk.krender.engine.api.util.TriState;
 
 /**
  * Used for finding/building materials.
