@@ -5,7 +5,6 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 
 import com.kneelawk.krender.engine.api.util.TriState;
 import com.kneelawk.krender.engine.api.material.RenderMaterial;
-import com.kneelawk.krender.engine.base.BaseKRendererApi;
 import com.kneelawk.krender.engine.base.buffer.TransformStack;
 import com.kneelawk.krender.engine.base.buffer.TransformingQuadEmitter;
 

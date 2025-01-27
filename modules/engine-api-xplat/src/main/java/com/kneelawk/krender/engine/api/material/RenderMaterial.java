@@ -10,5 +10,5 @@ public interface RenderMaterial extends MaterialView {
      * This is only guaranteed to be the same for a single runtime. Materials' integer ids are likely to change across
      * restarts.
      */
-    int integerId();
+    int intId();
 }

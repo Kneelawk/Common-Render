@@ -9,7 +9,6 @@ import com.kneelawk.krender.engine.api.buffer.PooledQuadEmitter;
 import com.kneelawk.krender.engine.api.buffer.PooledVertexEmitter;
 import com.kneelawk.krender.engine.api.buffer.QuadEmitter;
 import com.kneelawk.krender.engine.api.buffer.QuadTransform;
-import com.kneelawk.krender.engine.base.BaseKRendererApi;
 
 /**
  * A quad emitter that transforms quads before emitting them to the next emitter.

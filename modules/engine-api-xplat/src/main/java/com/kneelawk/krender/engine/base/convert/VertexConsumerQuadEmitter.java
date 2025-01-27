@@ -2,7 +2,6 @@ package com.kneelawk.krender.engine.base.convert;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
-import com.kneelawk.krender.engine.base.BaseKRendererApi;
 import com.kneelawk.krender.engine.base.buffer.BaseQuadFormat;
 import com.kneelawk.krender.engine.base.buffer.RootQuadEmitter;
 

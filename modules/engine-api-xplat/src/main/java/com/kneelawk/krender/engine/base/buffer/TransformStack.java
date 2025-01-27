@@ -9,7 +9,6 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import com.kneelawk.krender.engine.api.buffer.QuadEmitter;
 import com.kneelawk.krender.engine.api.buffer.QuadSink;
 import com.kneelawk.krender.engine.api.buffer.QuadTransform;
-import com.kneelawk.krender.engine.base.BaseKRendererApi;
 
 /**
  * Manages the stacking of {@link TransformingQuadEmitter}s that can be returned by

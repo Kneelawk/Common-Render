@@ -32,7 +32,7 @@ public class BaseMaterialFormat {
      */
     public static BaseMaterialFormat get(MaterialTextureManager manager) {
         try {
-            return cache.get(manager, () -> new BaseMaterialFormat(Mth.ceillog2(manager.maxIntegerId())));
+            return cache.get(manager, () -> new BaseMaterialFormat(Mth.ceillog2(manager.maxIntId())));
         } catch (ExecutionException e) {
             // should never happen
             throw new RuntimeException(e);

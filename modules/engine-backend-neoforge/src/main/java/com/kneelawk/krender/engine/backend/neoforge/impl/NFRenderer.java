@@ -10,10 +10,8 @@ import com.kneelawk.krender.engine.backend.neoforge.impl.material.NFRenderMateri
 import com.kneelawk.krender.engine.backend.neoforge.impl.mesh.NFMeshBuilder;
 import com.kneelawk.krender.engine.backend.neoforge.impl.model.NFBakedModelFactory;
 import com.kneelawk.krender.engine.backend.neoforge.impl.model.NFUnwrapper;
-import com.kneelawk.krender.engine.base.BaseKRendererApi;
 import com.kneelawk.krender.engine.base.convert.BaseTypeConverter;
 import com.kneelawk.krender.engine.base.material.BaseMaterialManager;
-import com.kneelawk.krender.engine.base.material.BaseMaterialManagerApi;
 
 public class NFRenderer implements BaseKRendererApi {
     public static final NFRenderer INSTANCE = new NFRenderer();

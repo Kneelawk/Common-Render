@@ -3,6 +3,7 @@ package com.kneelawk.krender.engine.base.material;
 import net.minecraft.client.renderer.RenderType;
 
 import com.kneelawk.krender.engine.api.material.BlendMode;
+import com.kneelawk.krender.engine.api.material.GlintMode;
 import com.kneelawk.krender.engine.api.material.MaterialFinder;
 import com.kneelawk.krender.engine.api.material.MaterialView;
 import com.kneelawk.krender.engine.api.util.TriState;
@@ -19,7 +20,7 @@ public abstract class BaseMaterialFinder extends BaseMaterialView implements Mat
      * @param defaultBits the default bits for the new material finder.
      */
     public BaseMaterialFinder(int defaultBits) {
-        super(defaultBits);
+        super(defaultBits, "<unnamed material>");
         this.defaultBits = defaultBits;
     }
 
@@ -31,25 +32,43 @@ public abstract class BaseMaterialFinder extends BaseMaterialView implements Mat
 
     @Override
     public MaterialFinder setBlendMode(BlendMode blendMode) {
-        bits = format.blendMode.setI(bits, blendMode);
+        bits = format().blendMode.setI(bits, blendMode);
         return this;
     }
 
     @Override
     public MaterialFinder setEmissive(boolean emissive) {
-        bits = format.emissive.setI(bits, emissive);
+        bits = format().emissive.setI(bits, emissive);
         return this;
     }
 
     @Override
     public MaterialFinder setDiffuseDisabled(boolean disabled) {
-        bits = format.diffuseDisabled.setI(bits, disabled);
+        bits = format().diffuseDisabled.setI(bits, disabled);
         return this;
     }
 
     @Override
     public MaterialFinder setAmbientOcclusionMode(TriState mode) {
-        bits = format.ambientOcclusion.setI(bits, mode);
+        bits = format().ambientOcclusion.setI(bits, mode);
+        return this;
+    }
+
+    @Override
+    public MaterialFinder setGlintMode(GlintMode glintMode) {
+        bits = format().glintMode.setI(bits, glintMode);
+        return this;
+    }
+
+    @Override
+    public MaterialFinder setTextureIntId(int textureIntId) {
+        bits = format().texture.setI(bits, textureIntId);
+        return this;
+    }
+
+    @Override
+    public MaterialFinder setName(String name) {
+        this.name = name;
         return this;
     }
 

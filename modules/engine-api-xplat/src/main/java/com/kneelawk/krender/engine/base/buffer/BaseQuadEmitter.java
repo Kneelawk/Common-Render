@@ -17,14 +17,13 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 
+import com.kneelawk.krender.engine.api.KRenderer;
 import com.kneelawk.krender.engine.api.buffer.QuadEmitter;
 import com.kneelawk.krender.engine.api.buffer.QuadView;
 import com.kneelawk.krender.engine.api.buffer.VertexEmitter;
 import com.kneelawk.krender.engine.api.material.MaterialFinder;
 import com.kneelawk.krender.engine.api.material.RenderMaterial;
 import com.kneelawk.krender.engine.api.util.ColorUtils;
-import com.kneelawk.krender.engine.base.BaseKRendererApi;
-import com.kneelawk.krender.engine.base.material.BaseMaterialViewApi;
 
 import static com.kneelawk.krender.engine.api.util.ColorUtils.blue;
 import static com.kneelawk.krender.engine.api.util.ColorUtils.green;
@@ -76,7 +75,7 @@ public abstract class BaseQuadEmitter extends BaseQuadView implements QuadEmitte
      *
      * @param renderer the KRenderer to associate this quad emitter with.
      */
-    public BaseQuadEmitter(BaseKRendererApi renderer) {
+    public BaseQuadEmitter(KRenderer renderer) {
         super(renderer);
     }
 

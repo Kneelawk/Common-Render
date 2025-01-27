@@ -14,7 +14,6 @@ import com.kneelawk.krender.engine.api.buffer.QuadEmitter;
 import com.kneelawk.krender.engine.api.buffer.QuadView;
 import com.kneelawk.krender.engine.api.material.RenderMaterial;
 import com.kneelawk.krender.engine.api.util.ColorUtils;
-import com.kneelawk.krender.engine.base.BaseKRendererApi;
 
 import static com.kneelawk.krender.engine.base.buffer.BaseQuadFormat.HEADER_BITS;
 import static com.kneelawk.krender.engine.base.buffer.BaseQuadFormat.HEADER_TINT_INDEX;
@@ -41,7 +40,7 @@ public class BaseQuadView implements QuadView {
     /**
      * The renderer associated with this quad view.
      */
-    protected final BaseKRendererApi renderer;
+    protected final KRenderer renderer;
 
     /**
      * Header and quad data.
@@ -80,7 +79,7 @@ public class BaseQuadView implements QuadView {
      *
      * @param renderer the KRenderer to associate this quad view with.
      */
-    public BaseQuadView(BaseKRendererApi renderer) {
+    public BaseQuadView(KRenderer renderer) {
         this.renderer = renderer;
     }
 

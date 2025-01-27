@@ -1,6 +1,5 @@
 package com.kneelawk.krender.engine.backend.neoforge.impl.mesh;
 
-import com.kneelawk.krender.engine.base.BaseKRendererApi;
 import com.kneelawk.krender.engine.base.buffer.TransformStack;
 
 public class NFTransformStack extends TransformStack {

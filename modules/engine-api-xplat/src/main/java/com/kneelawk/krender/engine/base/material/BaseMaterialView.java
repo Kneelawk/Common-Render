@@ -3,59 +3,76 @@ package com.kneelawk.krender.engine.base.material;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.Sheets;
-import net.minecraft.client.renderer.texture.TextureAtlas;
 
 import com.kneelawk.krender.engine.api.material.BlendMode;
+import com.kneelawk.krender.engine.api.material.GlintMode;
 import com.kneelawk.krender.engine.api.material.MaterialView;
 import com.kneelawk.krender.engine.api.util.TriState;
 
 /**
  * Base implementation of {@link MaterialView} that can be used for platforms that don't have an existing implementation.
  */
-public abstract class BaseMaterialView implements MaterialView, BaseMaterialViewApi {
+public abstract class BaseMaterialView implements MaterialView {
     /**
      * This material's bits.
      */
     protected int bits;
 
     /**
-     * This material view's material format.
+     * This material's name.
      */
-    protected BaseMaterialFormat format = BaseMaterialFormat.get(getRendererOrDefault());
+    protected String name;
 
     /**
      * Creates a new {@link BaseMaterialView} with the given bits.
      *
      * @param bits the bits representing this material.
      */
-    public BaseMaterialView(int bits) {
+    public BaseMaterialView(int bits, String name) {
         this.bits = bits;
+        this.name = name;
     }
 
-    @Override
-    public int getBits() {
-        return bits;
+    /**
+     * {@return this material view's material format}
+     */
+    protected BaseMaterialFormat format() {
+        return BaseMaterialFormat.get(getRendererOrDefault());
     }
 
     @Override
     public BlendMode getBlendMode() {
-        return format.blendMode.getI(bits);
+        return format().blendMode.getI(bits);
     }
 
     @Override
     public boolean isEmissive() {
-        return format.emissive.getI(bits);
+        return format().emissive.getI(bits);
     }
 
     @Override
     public boolean isDiffuseDisabled() {
-        return format.diffuseDisabled.getI(bits);
+        return format().diffuseDisabled.getI(bits);
     }
 
     @Override
     public TriState getAmbientOcclusionMode() {
-        return format.ambientOcclusion.getI(bits);
+        return format().ambientOcclusion.getI(bits);
+    }
+
+    @Override
+    public GlintMode getGlintMode() {
+        return format().glintMode.getI(bits);
+    }
+
+    @Override
+    public int getTextureIntId() {
+        return format().texture.getI(bits);
+    }
+
+    @Override
+    public String getName() {
+        return name;
     }
 
     @Override
@@ -65,23 +82,37 @@ public abstract class BaseMaterialView implements MaterialView, BaseMaterialView
 
     @Override
     public @Nullable RenderType toVanillaItem() {
+        if (isEmissive()) return RenderType.entityTranslucentEmissive(getTexture().id());
+
         return switch (getBlendMode()) {
             case DEFAULT -> null;
-            case SOLID -> Sheets.solidBlockSheet();
-            case CUTOUT_MIPPED, CUTOUT -> Sheets.cutoutBlockSheet();
-            case TRANSLUCENT -> Sheets.translucentItemSheet();
+            case SOLID -> RenderType.entitySolid(getTexture().id());
+            case CUTOUT_MIPPED, CUTOUT -> RenderType.entityCutout(getTexture().id());
+            case TRANSLUCENT -> RenderType.itemEntityTranslucentCull(getTexture().id());
         };
     }
 
     @Override
     public @Nullable RenderType toVanillaEntity() {
-        if (isEmissive()) return RenderType.entityTranslucentEmissive(TextureAtlas.LOCATION_BLOCKS);
+        if (isEmissive()) return RenderType.entityTranslucentEmissive(getTexture().id());
 
         return switch (getBlendMode()) {
             case DEFAULT -> null;
-            case SOLID -> RenderType.entitySolid(TextureAtlas.LOCATION_BLOCKS);
-            case CUTOUT_MIPPED, CUTOUT -> RenderType.entityCutoutNoCull(TextureAtlas.LOCATION_BLOCKS);
-            case TRANSLUCENT -> RenderType.entityTranslucent(TextureAtlas.LOCATION_BLOCKS);
+            case SOLID -> RenderType.entitySolid(getTexture().id());
+            case CUTOUT_MIPPED, CUTOUT -> RenderType.entityCutoutNoCull(getTexture().id());
+            case TRANSLUCENT -> RenderType.entityTranslucent(getTexture().id());
         };
+    }
+
+    @Override
+    public final boolean equals(Object o) {
+        if (!(o instanceof BaseMaterialView that)) return false;
+
+        return bits == that.bits;
+    }
+
+    @Override
+    public int hashCode() {
+        return bits;
     }
 }

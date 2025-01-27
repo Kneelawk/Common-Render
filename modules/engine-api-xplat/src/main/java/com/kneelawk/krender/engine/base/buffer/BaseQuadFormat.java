@@ -10,8 +10,6 @@ import com.kneelawk.krender.engine.api.buffer.QuadView;
 import com.kneelawk.krender.engine.api.material.MaterialManager;
 import com.kneelawk.krender.engine.api.material.RenderMaterial;
 import com.kneelawk.krender.engine.api.util.DirectionIds;
-import com.kneelawk.krender.engine.base.material.BaseMaterialManagerApi;
-import com.kneelawk.krender.engine.base.material.BaseMaterialViewApi;
 
 import static com.kneelawk.krender.engine.api.util.DirectionIds.DIRECTION_BIT_COUNT;
 import static com.kneelawk.krender.engine.api.util.DirectionIds.DIRECTION_MASK;
@@ -273,7 +271,7 @@ public final class BaseQuadFormat {
      * @return the render material.
      */
     public static RenderMaterial getMaterial(int bits, MaterialManager manager) {
-        return manager.materialByIntegerId((bits >>> MATERIAL_SHIFT) & BaseMaterialViewApi.FULL_BIT_MASK);
+        return manager.materialByIntId((bits >>> MATERIAL_SHIFT) & BaseMaterialViewApi.FULL_BIT_MASK);
     }
 
     /**
@@ -284,6 +282,6 @@ public final class BaseQuadFormat {
      * @return the new header bits.
      */
     public static int setMaterial(int bits, RenderMaterial material) {
-        return (bits & MATERIAL_INVERSE_MASK) | (material.integerId() << MATERIAL_SHIFT);
+        return (bits & MATERIAL_INVERSE_MASK) | (material.intId() << MATERIAL_SHIFT);
     }
 }

@@ -16,14 +16,14 @@ public interface MaterialTextureManager extends RendererDependent {
      * @param id the id of the texture to look up.
      * @return the material texture with the given integer id.
      * @throws IllegalStateException if the specified id does not exist.
-     * @see MaterialTexture#integerId()
+     * @see MaterialTexture#intId()
      */
-    MaterialTexture textureByIntegerId(int id);
+    MaterialTexture textureByIntId(int id);
 
     /**
-     * {@return the }
+     * {@return the maximum integer id that a material texture can have}
      */
-    int maxIntegerId();
+    int maxIntId();
 
     /**
      * {@return the none texture, indicating no texture is to be rendered}

@@ -1,31 +1,30 @@
 package com.kneelawk.krender.engine.base.material;
 
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.function.IntFunction;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 
 import org.jetbrains.annotations.Nullable;
-
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 
 import net.minecraft.resources.ResourceLocation;
 
 import com.kneelawk.krender.engine.api.KRenderer;
-import com.kneelawk.krender.engine.api.util.TriState;
+import com.kneelawk.krender.engine.api.material.BlendMode;
+import com.kneelawk.krender.engine.api.material.GlintMode;
 import com.kneelawk.krender.engine.api.material.MaterialFinder;
 import com.kneelawk.krender.engine.api.material.MaterialManager;
+import com.kneelawk.krender.engine.api.material.MaterialView;
 import com.kneelawk.krender.engine.api.material.RenderMaterial;
+import com.kneelawk.krender.engine.api.util.TriState;
 
 /**
  * Base {@link MaterialManager} implementation capable of handling all default materials without any extensions enabled.
- *
- * @param <M> the type of {@link RenderMaterial} implementation this uses.
  */
-public class BaseMaterialManager<M extends BaseMaterialViewApi & RenderMaterial>
-    implements MaterialManager, BaseMaterialManagerApi<M> {
+public class BaseMaterialManager implements MaterialManager {
     /**
-     * The maximum number of materials possible.
+     * The maximum material id value.
      */
-    public static final int MATERIAL_COUNT = 1 << BaseMaterialViewApi.TOTAL_BIT_LENGTH;
+    public static final int MATERIAL_COUNT = 0x8000;
 
     /**
      * The renderer that this material manager is associated with.
@@ -33,24 +32,39 @@ public class BaseMaterialManager<M extends BaseMaterialViewApi & RenderMaterial>
     protected final KRenderer renderer;
 
     /**
+     * The material format used by materials of this manager.
+     */
+    protected final BaseMaterialFormat format;
+
+    /**
+     * Lookup array of materials indexed by their integer ids.
+     */
+    protected final RenderMaterial[] materials = new RenderMaterial[MATERIAL_COUNT];
+
+    /**
+     * Cache of finder to render material instances.
+     */
+    protected final ConcurrentHashMap<BaseMaterialFinder, RenderMaterial> finderLookup = new ConcurrentHashMap<>();
+
+    /**
+     * Atomic render material id counter.
+     */
+    protected final AtomicInteger nextId = new AtomicInteger(0);
+
+    /**
      * A map of materials by resource-location id.
      */
-    protected final Object2ObjectOpenHashMap<ResourceLocation, M> materialsById = new Object2ObjectOpenHashMap<>();
-
-    /**
-     * A lock for the material-by-id map.
-     */
-    protected final ReentrantReadWriteLock materialsByIdLock = new ReentrantReadWriteLock();
-
-    /**
-     * Lookup array of materials indexed by their bits.
-     */
-    protected final Object[] materials = new Object[MATERIAL_COUNT];
+    protected final ConcurrentHashMap<ResourceLocation, RenderMaterial> materialsById = new ConcurrentHashMap<>();
 
     /**
      * The default bits that a material finder starts with.
      */
     protected final int defaultBits;
+
+    /**
+     * The backend's material factory.
+     */
+    protected final MaterialFactory materialFactory;
 
     /**
      * The default material.
@@ -61,6 +75,11 @@ public class BaseMaterialManager<M extends BaseMaterialViewApi & RenderMaterial>
      * The missing material.
      */
     protected final RenderMaterial missingMaterial;
+
+    /**
+     * Function for creating a render material based on the given material finder, for when the requested material has not been created yet.
+     */
+    protected final Function<BaseMaterialFinder, RenderMaterial> createMaterial = this::createMaterial;
 
     /**
      * The default material finder implementation.
@@ -77,7 +96,7 @@ public class BaseMaterialManager<M extends BaseMaterialViewApi & RenderMaterial>
 
         @Override
         public RenderMaterial find() {
-            return (RenderMaterial) materials[bits];
+            return finderLookup.computeIfAbsent(this, createMaterial);
         }
 
         @Override
@@ -92,8 +111,8 @@ public class BaseMaterialManager<M extends BaseMaterialViewApi & RenderMaterial>
      * @param renderer        the renderer that this material manager is associated with.
      * @param materialFactory the factory for materials.
      */
-    public BaseMaterialManager(KRenderer renderer, IntFunction<M> materialFactory) {
-        this(renderer, computeDefaultBits(), materialFactory);
+    public BaseMaterialManager(KRenderer renderer, MaterialFactory materialFactory) {
+        this(renderer, computeDefaultBits(renderer), materialFactory);
     }
 
     /**
@@ -103,33 +122,52 @@ public class BaseMaterialManager<M extends BaseMaterialViewApi & RenderMaterial>
      * @param defaultBits     the default bits for a material in this material manager.
      * @param materialFactory the factory for materials.
      */
-    protected BaseMaterialManager(KRenderer renderer, int defaultBits, IntFunction<M> materialFactory) {
+    protected BaseMaterialManager(KRenderer renderer, int defaultBits,
+                                  MaterialFactory materialFactory) {
         this.renderer = renderer;
+        this.format = BaseMaterialFormat.get(renderer);
         this.defaultBits = defaultBits;
+        this.materialFactory = materialFactory;
 
-        for (int i = 0; i < MATERIAL_COUNT; i++) {
-            if (BaseMaterialViewApi.isValid(i)) {
-                materials[i] = materialFactory.apply(i);
-            }
-        }
-
-        defaultMaterial = materialFinder().find();
-        // make the missing material unequal from all other materials
-        missingMaterial = materialFactory.apply(defaultBits);
+        missingMaterial = materialFinder().setName(MaterialView.MISSING_ID.toString()).find();
+        defaultMaterial = materialFinder().setName(MaterialView.DEFAULT_ID.toString()).find();
     }
 
-    private static int computeDefaultBits() {
+    private static int computeDefaultBits(KRenderer renderer) {
         int defaultBits = 0;
 
-        defaultBits = defaultBits | (TriState.DEFAULT.ordinal() << BaseMaterialViewApi.AO_BIT_OFFSET);
+        BaseMaterialFormat format = BaseMaterialFormat.get(renderer);
+
+        defaultBits = format.blendMode.setI(defaultBits, BlendMode.DEFAULT);
+        defaultBits = format.emissive.setI(defaultBits, false);
+        defaultBits = format.diffuseDisabled.setI(defaultBits, false);
+        defaultBits = format.ambientOcclusion.setI(defaultBits, TriState.DEFAULT);
+        defaultBits = format.glintMode.setI(defaultBits, GlintMode.DEFAULT);
+        defaultBits = format.texture.setI(defaultBits, renderer.textureManager().blockAtlas().intId());
 
         return defaultBits;
     }
 
+    private RenderMaterial createMaterial(BaseMaterialFinder finder) {
+        int id = nextId.getAndIncrement();
+        RenderMaterial material = materialFactory.create(finder, id);
+        materials[id] = material;
+        return material;
+    }
+
     @Override
-    @SuppressWarnings("unchecked")
-    public M getMaterialByBits(int bits) {
-        return (M) materials[bits];
+    public RenderMaterial materialByIntId(int id) {
+        if (id < -1 || id >= MATERIAL_COUNT) throw new IllegalArgumentException("Invalid material int id");
+        RenderMaterial material = materials[id];
+        if (material == null)
+            throw new IllegalStateException("Attempted to request a material " + id +
+                " that does not exist. This likely indicates mesh corruption.");
+        return material;
+    }
+
+    @Override
+    public int maxIntId() {
+        return MATERIAL_COUNT;
     }
 
     @Override
@@ -149,33 +187,11 @@ public class BaseMaterialManager<M extends BaseMaterialViewApi & RenderMaterial>
 
     @Override
     public @Nullable RenderMaterial materialById(ResourceLocation id) {
-        materialsByIdLock.readLock().lock();
-        try {
-            return materialsById.get(id);
-        } finally {
-            materialsByIdLock.readLock().unlock();
-        }
+        return materialsById.get(id);
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public boolean registerMaterial(ResourceLocation id, RenderMaterial material) {
-        materialsByIdLock.writeLock().lock();
-        try {
-            return registerMaterialImpl(id, (M) material);
-        } finally {
-            materialsByIdLock.writeLock().unlock();
-        }
-    }
-
-    /**
-     * Registers the material in a thread-safe environment.
-     *
-     * @param id       the id of the material.
-     * @param material the material to register.
-     * @return whether the material was registered.
-     */
-    protected boolean registerMaterialImpl(ResourceLocation id, M material) {
         if (materialsById.containsKey(id)) return false;
 
         materialsById.put(id, material);
@@ -184,29 +200,26 @@ public class BaseMaterialManager<M extends BaseMaterialViewApi & RenderMaterial>
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public boolean registerOrUpdateMaterial(ResourceLocation id, RenderMaterial material) {
-        materialsByIdLock.writeLock().lock();
-        try {
-            return registerOrUpdateMaterialImpl(id, (M) material);
-        } finally {
-            materialsByIdLock.writeLock().unlock();
-        }
-    }
-
-    /**
-     * Registers or replaces a material in a thread-safe environment.
-     *
-     * @param id       the id of the material.
-     * @param material the material to register.
-     * @return whether this was the first material to be registered with the given id.
-     */
-    protected boolean registerOrUpdateMaterialImpl(ResourceLocation id, M material) {
         return materialsById.put(id, material) == null;
     }
 
     @Override
     public @Nullable KRenderer getRenderer() {
         return renderer;
+    }
+
+    /**
+     * A backend-implemented factory for render materials.
+     */
+    public interface MaterialFactory {
+        /**
+         * Create a render material specific to the backend being implemented.
+         *
+         * @param finder the material finder that was used to create this material.
+         * @param intId  integer id of the material to be created.
+         * @return the new render material.
+         */
+        RenderMaterial create(BaseMaterialView finder, int intId);
     }
 }

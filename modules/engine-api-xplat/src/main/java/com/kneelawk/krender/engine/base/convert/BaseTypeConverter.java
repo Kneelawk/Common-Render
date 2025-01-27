@@ -10,7 +10,6 @@ import com.kneelawk.krender.engine.api.convert.TypeConverter;
 import com.kneelawk.krender.engine.api.material.RenderMaterial;
 import com.kneelawk.krender.engine.api.mesh.Mesh;
 import com.kneelawk.krender.engine.api.mesh.MeshBuilder;
-import com.kneelawk.krender.engine.base.BaseKRendererApi;
 import com.kneelawk.krender.engine.base.buffer.BaseQuadEmitter;
 
 /**

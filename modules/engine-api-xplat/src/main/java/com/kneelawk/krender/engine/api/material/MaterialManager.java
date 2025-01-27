@@ -37,14 +37,14 @@ public interface MaterialManager extends RendererDependent {
      * @param id the id of the render material to look up.
      * @return the render material created with the given integer id.
      * @throws IllegalStateException if the specified id does not exist.
-     * @see RenderMaterial#integerId()
+     * @see RenderMaterial#intId()
      */
-    RenderMaterial materialByIntegerId(int id);
+    RenderMaterial materialByIntId(int id);
 
     /**
      * {@return the maximum valid integer id for a render material}
      */
-    int maxIntegerId();
+    int maxIntId();
 
     /**
      * Gets a {@link RenderMaterial} by its id if has been registered.

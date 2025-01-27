@@ -8,7 +8,6 @@ import com.kneelawk.krender.engine.api.KRenderer;
 import com.kneelawk.krender.engine.api.buffer.QuadEmitter;
 import com.kneelawk.krender.engine.api.buffer.QuadView;
 import com.kneelawk.krender.engine.api.mesh.Mesh;
-import com.kneelawk.krender.engine.base.BaseKRendererApi;
 import com.kneelawk.krender.engine.base.buffer.BaseQuadEmitter;
 import com.kneelawk.krender.engine.base.buffer.BaseQuadFormat;
 import com.kneelawk.krender.engine.base.buffer.BaseQuadView;

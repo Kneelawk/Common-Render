@@ -1,7 +1,6 @@
 package com.kneelawk.krender.engine.base.convert;
 
 import com.kneelawk.krender.engine.api.buffer.QuadEmitter;
-import com.kneelawk.krender.engine.base.BaseKRendererApi;
 import com.kneelawk.krender.engine.base.buffer.BaseQuadEmitter;
 import com.kneelawk.krender.engine.base.buffer.BaseQuadFormat;
 import com.kneelawk.krender.engine.base.buffer.RootQuadEmitter;
